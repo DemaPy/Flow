@@ -1,12 +1,16 @@
 "use client";
-import React, { PropsWithChildren } from "react";
+import React, { PropsWithChildren, useState } from "react";
 import { ThemeProvider } from "next-themes";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const AppProviders = ({ children }: PropsWithChildren) => {
+  const [queryClient] = useState(() => new QueryClient());
   return (
-    <ThemeProvider attribute={"class"} defaultTheme="system" enableSystem>
-      {children}
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider attribute={"class"} defaultTheme="system" enableSystem>
+        {children}
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 
