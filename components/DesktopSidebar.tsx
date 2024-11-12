@@ -7,9 +7,9 @@ import {
   ShieldCheckIcon,
 } from "lucide-react";
 import React from "react";
-import Logo from "../Logo";
+import Logo from "./Logo";
 import Link from "next/link";
-import { buttonVariants } from "./button";
+import { buttonVariants } from "./ui/button";
 import { usePathname } from "next/navigation";
 
 const routes = [

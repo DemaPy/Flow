@@ -1,4 +1,5 @@
-import DesktopSidebar from "@/components/ui/DesktopSidebar";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import DesktopSidebar from "@/components/DesktopSidebar";
 import { Separator } from "@/components/ui/separator";
 import React, { PropsWithChildren } from "react";
 
@@ -8,7 +9,7 @@ const layout = ({ children }: PropsWithChildren) => {
       <DesktopSidebar />
       <div className="flex flex-col flex-1 min-h-screen">
         <header className="flex items-center justify-between px-6 py-4 h-[50px] container">
-          Flow
+          <Breadcrumbs />
         </header>
         <Separator />
         <div className="overflow-auto">
