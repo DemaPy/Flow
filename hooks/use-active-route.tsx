@@ -5,7 +5,7 @@ const useActiveRoute = () => {
   const pathName = usePathname();
   const activeRoute =
     ROUTES.find(
-      (route) => route.href.length > 0 && pathName.includes(route.href)
+      (route) => route.href.length > 1 && pathName.includes(route.href)
     ) || ROUTES[0];
   return activeRoute;
 };

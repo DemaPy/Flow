@@ -7,7 +7,7 @@ import {
 
 export const ROUTES = [
   {
-    href: "",
+    href: "/",
     label: "Home",
     icon: HomeIcon,
   },
