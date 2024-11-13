@@ -4,8 +4,11 @@ import { Workflow } from "@prisma/client";
 import {
   Background,
   BackgroundVariant,
+  Connection,
   Controls,
+  Edge,
   ReactFlow,
+  addEdge,
   useEdgesState,
   useNodesState,
   useReactFlow,
@@ -17,6 +20,7 @@ import { CreateFlowNode } from "@/lib/workflow/createFlowNode";
 import { TaskType } from "@/types/task";
 import NodeComponent from "./nodes/NodeComponent";
 import { AppNode } from "@/types/appNode";
+import { CARD_WIDTH } from "./nodes/NodeCard";
 
 interface FlowEditorProps {
   workflow: Workflow;
@@ -33,8 +37,8 @@ const fitViewOptions = {
 
 function FlowEditor({ workflow }: FlowEditorProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const { setViewport } = useReactFlow();
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  const { setViewport, screenToFlowPosition } = useReactFlow();
 
   useEffect(() => {
     try {
@@ -67,8 +71,20 @@ function FlowEditor({ workflow }: FlowEditorProps) {
     const taskType = ev.dataTransfer.getData("application/reactflow");
     if (typeof taskType === undefined || !taskType) return;
 
-    const newNode = CreateFlowNode({ nodeType: taskType as TaskType });
+    const position = screenToFlowPosition({
+      x: ev.clientX - CARD_WIDTH / 2,
+      y: ev.clientY,
+    });
+
+    const newNode = CreateFlowNode({
+      nodeType: taskType as TaskType,
+      position,
+    });
     setNodes((prev) => prev.concat(newNode));
+  }, []);
+
+  const handleConnect = useCallback((connection: Connection) => {
+    setEdges((prev) => addEdge({ ...connection, animated: true }, prev));
   }, []);
 
   return (
@@ -85,6 +101,7 @@ function FlowEditor({ workflow }: FlowEditorProps) {
         fitView
         onDragOver={handleDragOver}
         onDrop={handleDrop}
+        onConnect={handleConnect}
       >
         <Controls position="top-left" fitViewOptions={fitViewOptions} />
         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />

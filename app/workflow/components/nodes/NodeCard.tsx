@@ -7,6 +7,8 @@ interface NodeCardProps extends PropsWithChildren {
   isSelected: boolean;
 }
 
+export const CARD_WIDTH = 400
+
 const NodeCard = ({ children, isSelected, nodeId }: NodeCardProps) => {
   const { getNode, setCenter } = useReactFlow();
   return (

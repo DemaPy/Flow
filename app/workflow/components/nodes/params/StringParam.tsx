@@ -18,7 +18,7 @@ const StringParam = ({
 }: StringParamProps) => {
   const id = useId();
   const [internalvalue, setInternalvalue] = useState(value);
-
+  
   return (
     <div className="space-y-1 p-1 w-full">
       <Label htmlFor={id} className="flex text-xs">
