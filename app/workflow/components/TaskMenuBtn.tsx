@@ -9,8 +9,16 @@ interface TaskMenuBtnProps {
 
 const TaskMenuBtn = ({ taskType }: TaskMenuBtnProps) => {
   const Task = TaskRegistry[taskType];
+
+  const onDragStart = (ev: React.DragEvent, type: TaskType) => {
+    ev.dataTransfer.setData("application/reactflow", type);
+    ev.dataTransfer.effectAllowed = "move";
+  };
+
   return (
     <Button
+      draggable
+      onDragStart={(ev) => onDragStart(ev, taskType)}
       variant={"secondary"}
       className="flex justify-between items-center gap-2 border w-full"
     >
