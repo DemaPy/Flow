@@ -1,7 +1,8 @@
+import UnderConstruction from "@/components/UnderConstruction";
 import React from "react";
 
 const Credentials = () => {
-  return <div>credentials</div>;
+  return <UnderConstruction />
 };
 
 export default Credentials;

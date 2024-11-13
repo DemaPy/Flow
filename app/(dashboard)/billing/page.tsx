@@ -1,7 +1,8 @@
+import UnderConstruction from "@/components/UnderConstruction";
 import React from "react";
 
 const Billing = () => {
-  return <div>Billing</div>;
+  return <UnderConstruction />
 };
 
 export default Billing;
