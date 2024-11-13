@@ -3,6 +3,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, InboxIcon } from "lucide-react";
 import React from "react";
 import CreateWorkFlowDialog from "./actions/create";
+import WorkflowView from "./components/WorkflowView";
 
 const Workflows = async () => {
   try {
@@ -19,11 +20,11 @@ const Workflows = async () => {
               Click the button below to create first workflow.
             </p>
           </div>
-            <CreateWorkFlowDialog triggerText="Create your first workflow" />
+          <CreateWorkFlowDialog triggerText="Create your first workflow" />
         </div>
       );
     }
-    return <pre contentEditable>{JSON.stringify(workflows, null, 4)}</pre>;
+    return <WorkflowView workflows={workflows} card={"default"} />;
   } catch (error) {
     let message = "Something went wrong.";
     if (error instanceof Error) {

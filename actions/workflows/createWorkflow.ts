@@ -17,8 +17,9 @@ export async function createWorkflow(form: workflowShemaType) {
     throw new Error("Invalid form data");
   }
 
+  let result;
   try {
-    const result = await prisma.workflow.create({
+    result = await prisma.workflow.create({
       data: {
         userId,
         status: WorkflowStatus.DRAFT,
@@ -29,7 +30,6 @@ export async function createWorkflow(form: workflowShemaType) {
     if (!result) {
       throw new Error("Failed to create workflow");
     }
-    redirect(`/workflow/editor/${result.id}`);
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === "P2002") {
@@ -38,4 +38,6 @@ export async function createWorkflow(form: workflowShemaType) {
     }
     throw new Error("Something went wrong");
   }
+
+  redirect(`/workflow/editor/${result.id}`);
 }
