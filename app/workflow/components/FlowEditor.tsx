@@ -12,13 +12,27 @@ import {
 import React from "react";
 
 import "@xyflow/react/dist/style.css";
+import { CreateFlowNode } from "@/lib/workflow/createFlowNode";
+import { TaskType } from "@/types/task";
+import NodeComponent from "./nodes/NodeComponent";
 
 interface FlowEditorProps {
   workflow: Workflow;
 }
 
+const nodeTypes = {
+  ScrapeNode: NodeComponent,
+};
+
+const snapGrid: [number, number] = [100, 100];
+const fitViewOptions = {
+  padding: 2,
+};
+
 function FlowEditor({}: FlowEditorProps) {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState([
+    CreateFlowNode({ nodeType: TaskType.LAUNCH_BROWSER }),
+  ]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   return (
@@ -28,8 +42,13 @@ function FlowEditor({}: FlowEditorProps) {
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        nodeTypes={nodeTypes}
+        snapGrid={snapGrid}
+        snapToGrid
+        fitView
+        fitViewOptions={fitViewOptions}
       >
-        <Controls position="top-left" />
+        <Controls position="top-left" fitViewOptions={fitViewOptions} />
         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
       </ReactFlow>
     </main>
