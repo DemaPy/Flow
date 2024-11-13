@@ -1,10 +1,14 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { CreateFlowNode } from "@/lib/workflow/createFlowNode";
 import { workflowSchema, workflowShemaType } from "@/schema/workflows";
+import { AppNode } from "@/types/appNode";
+import { TaskType } from "@/types/task";
 import { WorkflowStatus } from "@/types/workflow";
 import { auth } from "@clerk/nextjs/server";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { Edge } from "@xyflow/react";
 import { redirect } from "next/navigation";
 
 export async function createWorkflow(form: workflowShemaType) {
@@ -17,13 +21,20 @@ export async function createWorkflow(form: workflowShemaType) {
     throw new Error("Invalid form data");
   }
 
+  const initialFlow: { nodes: AppNode[]; edges: Edge[] } = {
+    nodes: [],
+    edges: [],
+  };
+
+  initialFlow.nodes.push(CreateFlowNode({ nodeType: TaskType.LAUNCH_BROWSER }));
+
   let result;
   try {
     result = await prisma.workflow.create({
       data: {
         userId,
         status: WorkflowStatus.DRAFT,
-        definition: "TODO",
+        definition: JSON.stringify(initialFlow),
         ...data,
       },
     });
