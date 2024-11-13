@@ -23,7 +23,7 @@ const Workflows = async () => {
         </div>
       );
     }
-    return <div>Workflows</div>;
+    return <pre contentEditable>{JSON.stringify(workflows, null, 4)}</pre>;
   } catch (error) {
     let message = "Something went wrong.";
     if (error instanceof Error) {

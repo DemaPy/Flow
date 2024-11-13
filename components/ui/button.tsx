@@ -20,7 +20,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         sidebarItem: "gap-2 !justify-start hover:bg-accent hover:bg-primary/80 hover:text-primary-foreground",
         sidebarActiveItem: "gap-2 !justify-start hover:bg-primary/90 bg-primary/80 text-primary-foreground",
-        icon: "flex items-center justify-center px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/80 transition-colors"
+        icon: "flex items-center justify-center px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/80 transition-colors w-full"
       },
       size: {
         default: "h-10 px-4 py-2",
