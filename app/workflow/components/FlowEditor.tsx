@@ -21,6 +21,7 @@ import { TaskType } from "@/types/task";
 import NodeComponent from "./nodes/NodeComponent";
 import { AppNode } from "@/types/appNode";
 import { CARD_WIDTH } from "./nodes/NodeCard";
+import DeletableEdge from "./edges/DeletableEdge";
 
 interface FlowEditorProps {
   workflow: Workflow;
@@ -28,6 +29,10 @@ interface FlowEditorProps {
 
 const nodeTypes = {
   ScrapeNode: NodeComponent,
+};
+
+const edgeTypes = {
+  default: DeletableEdge,
 };
 
 const snapGrid: [number, number] = [50, 50];
@@ -95,6 +100,7 @@ function FlowEditor({ workflow }: FlowEditorProps) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         snapGrid={snapGrid}
         snapToGrid
         fitViewOptions={fitViewOptions}
