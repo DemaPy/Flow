@@ -23,9 +23,11 @@ const flowToExecutionPlan = (nodes: AppNode[], edges: Edge[]) => {
   ];
 
   const planned = new Set("");
+
+  planned.add(entryPoint.id);
   for (
     let phase = 2;
-    phase <= nodes.length || planned.size < nodes.length;
+    phase <= nodes.length && planned.size < nodes.length;
     phase++
   ) {
     const nextPhase: WorkflowExecutionPlanPhase = { phase, nodes: [] };
@@ -51,8 +53,12 @@ const flowToExecutionPlan = (nodes: AppNode[], edges: Edge[]) => {
       }
 
       nextPhase.nodes.push(currNode);
-      planned.add(currNode.id);
     }
+
+    for (const node of nextPhase.nodes) {
+      planned.add(node.id);
+    }
+    executionPlan.push(nextPhase);
   }
 
   return {

@@ -8,15 +8,17 @@ import NodeInputs from "./NodeInputs";
 import NodeInput from "./NodeInput";
 import NodeOutputs from "./NodeOutputs";
 import NodeOutput from "./NodeOutput";
+import { Badge } from "@/components/ui/badge";
 
 interface NodeComponentProps extends NodeProps {}
-
+const DEV_MODE = process.env.NEXT_PUBLIC_DEV_MODE === "true"
 const NodeComponent = memo(({ id, selected, data }: NodeComponentProps) => {
   const nodeData = data as AppNodeData;
   const task = TaskRegistry[nodeData.type];
 
   return (
     <NodeCard nodeId={id} isSelected={!!selected}>
+      {DEV_MODE && <Badge>DEV: {id}</Badge>}
       <NodeHeader nodeId={id} taskType={nodeData.type} />
       <NodeInputs>
         {task.inputs.map((input) => (

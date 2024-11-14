@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import useExecutionPlan from "@/hooks/useExecutionPlan";
 import { Workflow } from "@prisma/client";
 import { PlayIcon } from "lucide-react";
 import React from "react";
@@ -10,9 +11,14 @@ type ExecuteBtn = {
 };
 
 const ExecuteBtn = ({ workflowId }: ExecuteBtn) => {
+  const generate = useExecutionPlan();
+
   return (
     <Button
-      onClick={() => {}}
+      onClick={() => {
+        const plan = generate();
+        console.log(plan);
+      }}
       variant={"outline"}
       className="flex items-center gap-2"
     >

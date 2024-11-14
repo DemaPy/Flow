@@ -8,8 +8,8 @@ const useExecutionPlan = () => {
 
   const generateExecPlan = useCallback(() => {
     const { nodes, edges } = toObject();
-    const result = flowToExecutionPlan(nodes as AppNode[], edges);
-    return result;
+    const { executionPlan } = flowToExecutionPlan(nodes as AppNode[], edges);
+    return executionPlan;
   }, [toObject]);
 
   return generateExecPlan;
