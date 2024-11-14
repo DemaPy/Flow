@@ -8,9 +8,10 @@ import BrowserInstanceParam from "./params/BrowserInstanceParam";
 interface NodeParamFieldProps {
   nodeInput: TaskParam;
   nodeId: string;
+  disabled: boolean
 }
 
-const NodeParamField = ({ nodeInput, nodeId }: NodeParamFieldProps) => {
+const NodeParamField = ({ nodeInput, nodeId, disabled }: NodeParamFieldProps) => {
   const { updateNodeData, getNode } = useReactFlow();
   const node = getNode(nodeId) as AppNode;
   const value = node?.data.inputs?.[nodeInput.name];
@@ -34,6 +35,7 @@ const NodeParamField = ({ nodeInput, nodeId }: NodeParamFieldProps) => {
           value={value}
           updateNodeParamValue={updateNodeParamValue}
           param={nodeInput}
+          disabled={disabled}
         />
       );
     case TaskParamType.BROWSER_INSTANCE:

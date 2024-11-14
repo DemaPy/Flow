@@ -22,6 +22,7 @@ import NodeComponent from "./nodes/NodeComponent";
 import { AppNode } from "@/types/appNode";
 import { CARD_WIDTH } from "./nodes/NodeCard";
 import DeletableEdge from "./edges/DeletableEdge";
+import { TaskRegistry } from "@/lib/workflow/task/registry";
 
 interface FlowEditorProps {
   workflow: Workflow;
@@ -43,7 +44,7 @@ const fitViewOptions = {
 function FlowEditor({ workflow }: FlowEditorProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-  const { setViewport, screenToFlowPosition } = useReactFlow();
+  const { setViewport, screenToFlowPosition, updateNodeData } = useReactFlow();
 
   useEffect(() => {
     try {
@@ -71,25 +72,76 @@ function FlowEditor({ workflow }: FlowEditorProps) {
     ev.dataTransfer.dropEffect = "move";
   }, []);
 
-  const handleDrop = useCallback((ev: React.DragEvent) => {
-    ev.preventDefault();
-    const taskType = ev.dataTransfer.getData("application/reactflow");
-    if (typeof taskType === undefined || !taskType) return;
+  const handleDrop = useCallback(
+    (ev: React.DragEvent) => {
+      ev.preventDefault();
+      const taskType = ev.dataTransfer.getData("application/reactflow");
+      if (typeof taskType === undefined || !taskType) return;
 
-    const position = screenToFlowPosition({
-      x: ev.clientX - CARD_WIDTH / 2,
-      y: ev.clientY,
-    });
+      const position = screenToFlowPosition({
+        x: ev.clientX - CARD_WIDTH / 2,
+        y: ev.clientY,
+      });
 
-    const newNode = CreateFlowNode({
-      nodeType: taskType as TaskType,
-      position,
-    });
-    setNodes((prev) => prev.concat(newNode));
-  }, []);
+      const newNode = CreateFlowNode({
+        nodeType: taskType as TaskType,
+        position,
+      });
+      setNodes((prev) => prev.concat(newNode));
+    },
+    [screenToFlowPosition, setNodes]
+  );
 
-  const handleConnect = useCallback((connection: Connection) => {
-    setEdges((prev) => addEdge({ ...connection, animated: true }, prev));
+  const handleConnect = useCallback(
+    (connection: Connection) => {
+      setEdges((prev) => addEdge({ ...connection, animated: true }, prev));
+      if (!connection.targetHandle) {
+        return;
+      }
+      const node = nodes.find((node) => node.id === connection.target);
+      if (!node) {
+        return;
+      }
+      const nodeInputs = node.data.inputs;
+      updateNodeData(node.id, {
+        inputs: {
+          ...nodeInputs,
+          [connection.targetHandle]: "",
+        },
+      });
+    },
+    [setEdges, updateNodeData, nodes]
+  );
+
+  const isValidConnection = useCallback((connection: Edge | Connection) => {
+    if (connection.source === connection.target) return false;
+
+    if (connection.source === connection.target) {
+    }
+
+    const source = nodes.find((node) => node.id === connection.source);
+    const target = nodes.find((node) => node.id === connection.target);
+    if (!source || !target) {
+      console.log("Invalid connection.");
+      return false;
+    }
+
+    const sTask = TaskRegistry[source.data.type];
+    const tTask = TaskRegistry[target.data.type];
+
+    const output = sTask.outputs.find(
+      (item) => item.name === connection.sourceHandle
+    );
+    const input = tTask.inputs.find(
+      (item) => item.name === connection.targetHandle
+    );
+
+    if (output?.type !== input?.type) {
+      console.log("Invalid connection.");
+      return false
+    }
+
+    return true;
   }, []);
 
   return (
@@ -108,6 +160,7 @@ function FlowEditor({ workflow }: FlowEditorProps) {
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         onConnect={handleConnect}
+        isValidConnection={isValidConnection}
       >
         <Controls position="top-left" fitViewOptions={fitViewOptions} />
         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
