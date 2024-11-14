@@ -15,6 +15,7 @@ const NodeInput = ({ nodeInput, nodeId }: NodeInputProps) => {
   const isConnected = edges.some(
     (edge) => edge.target === nodeId && edge.targetHandle === nodeInput.name
   );
+  
   return (
     <div className="flex justify-start relative p-2 bg-secondary w-full">
       <NodeParamField
