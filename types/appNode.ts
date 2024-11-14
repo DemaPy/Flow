@@ -13,5 +13,5 @@ export interface AppNode extends Node {
 
 export interface AppNodeMissingInputs {
   nodeId: string;
-  nodes: AppNode[];
+  inputs: string[];
 }

@@ -1,4 +1,4 @@
-import { AppNode } from "@/types/appNode";
+import { AppNode, AppNodeMissingInputs } from "@/types/appNode";
 import {
   WorkflowExecutionPlan,
   WorkflowExecutionPlanPhase,
@@ -6,13 +6,35 @@ import {
 import { Edge, getIncomers } from "@xyflow/react";
 import { TaskRegistry } from "./task/registry";
 
-const flowToExecutionPlan = (nodes: AppNode[], edges: Edge[]) => {
+export enum FlowToExecutionPlanValidationError {
+  "NO_ENTRY_POINT",
+  "INVALID_INPUTS",
+}
+
+export type FlowToExecutionPlanError = {
+  type: FlowToExecutionPlanValidationError;
+  invalidElements?: AppNodeMissingInputs[];
+};
+
+type FlowToExecutionPlanType = {
+  executionPlan?: WorkflowExecutionPlan;
+  error?: FlowToExecutionPlanError;
+};
+
+const flowToExecutionPlan = (
+  nodes: AppNode[],
+  edges: Edge[]
+): FlowToExecutionPlanType => {
   const entryPoint = nodes.find(
     (node) => TaskRegistry[node.data.type].isEntryPoint
   );
 
   if (!entryPoint) {
-    throw new Error("TODO");
+    return {
+      error: {
+        type: FlowToExecutionPlanValidationError.NO_ENTRY_POINT,
+      },
+    };
   }
 
   const executionPlan: WorkflowExecutionPlan = [
@@ -22,7 +44,16 @@ const flowToExecutionPlan = (nodes: AppNode[], edges: Edge[]) => {
     },
   ];
 
+  const invalidInputs: AppNodeMissingInputs[] = [];
   const planned = new Set("");
+
+  const invalidEntryInputs = getInvalidInputs(entryPoint, edges, planned);
+  if (invalidEntryInputs.length > 0) {
+    invalidInputs.push({
+      nodeId: entryPoint.id,
+      inputs: invalidEntryInputs,
+    });
+  }
 
   planned.add(entryPoint.id);
   for (
@@ -36,8 +67,8 @@ const flowToExecutionPlan = (nodes: AppNode[], edges: Edge[]) => {
         continue;
       }
 
-      const invalidInputs = getInvalidInputs(currNode, edges, planned);
-      if (invalidInputs.length > 0) {
+      const invalidCurrNodeInputs = getInvalidInputs(currNode, edges, planned);
+      if (invalidCurrNodeInputs.length > 0) {
         // Get parent nodes (incomers) for currNode
         const incomers = getIncomers(currNode, nodes, edges);
         if (incomers.every((inc) => planned.has(inc.id))) {
@@ -45,8 +76,10 @@ const flowToExecutionPlan = (nodes: AppNode[], edges: Edge[]) => {
           // (incomer it is parent node)
           // and there are still incalid inputs
           // this particular node has an invalid input.
-          console.log("invalid input");
-          throw new Error("TODO");
+          invalidInputs.push({
+            nodeId: currNode.id,
+            inputs: invalidCurrNodeInputs,
+          });
         } else {
           continue;
         }
@@ -59,6 +92,15 @@ const flowToExecutionPlan = (nodes: AppNode[], edges: Edge[]) => {
       planned.add(node.id);
     }
     executionPlan.push(nextPhase);
+  }
+
+  if (invalidInputs.length > 0) {
+    return {
+      error: {
+        type: FlowToExecutionPlanValidationError.INVALID_INPUTS,
+        invalidElements: invalidInputs,
+      },
+    };
   }
 
   return {

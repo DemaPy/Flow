@@ -1,3 +1,5 @@
+"use client"
+
 import { AppNodeMissingInputs } from "@/types/appNode";
 import {
   Dispatch,
@@ -22,7 +24,9 @@ export function FlowValidationContextProvider({ children }: PropsWithChildren) {
   const value: FlowValidationContextInterface = {
     setInputs,
     inputs,
-    clearErrors: () => {},
+    clearErrors: () => {
+      setInputs([]);
+    },
   };
   return (
     <FlowValidationContext.Provider value={value}>
