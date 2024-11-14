@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import SaveBtn from "./SaveBtn";
 import { Workflow } from "@prisma/client";
+import ExecuteBtn from "./ExecuteBtn";
 
 interface TopBarProps {
   title: string;
@@ -40,6 +41,7 @@ const TopBar = ({ title, subtitle, workflowId }: TopBarProps) => {
         </div>
       </div>
       <div className="flex gap-1 flex-1 justify-end">
+        <ExecuteBtn workflowId={workflowId} />
         <SaveBtn workflowId={workflowId} />
       </div>
     </header>
