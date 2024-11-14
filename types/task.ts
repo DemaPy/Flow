@@ -15,6 +15,6 @@ export interface TaskParam {
   helperText?: string;
   required?: boolean;
   hideHandle?: boolean;
-  variant?: "textarea" | "input"
+  variant?: string
   [key: string]: any;
 }
