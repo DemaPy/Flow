@@ -7,8 +7,10 @@ import {
   Connection,
   Controls,
   Edge,
+  Node,
   ReactFlow,
   addEdge,
+  getOutgoers,
   useEdgesState,
   useNodesState,
   useReactFlow,
@@ -113,36 +115,51 @@ function FlowEditor({ workflow }: FlowEditorProps) {
     [setEdges, updateNodeData, nodes]
   );
 
-  const isValidConnection = useCallback((connection: Edge | Connection) => {
-    if (connection.source === connection.target) return false;
+  const isValidConnection = useCallback(
+    (connection: Edge | Connection) => {
+      if (connection.source === connection.target) return false;
 
-    if (connection.source === connection.target) {
-    }
+      if (connection.source === connection.target) {
+      }
 
-    const source = nodes.find((node) => node.id === connection.source);
-    const target = nodes.find((node) => node.id === connection.target);
-    if (!source || !target) {
-      console.log("Invalid connection.");
-      return false;
-    }
+      const source = nodes.find((node) => node.id === connection.source);
+      const target = nodes.find((node) => node.id === connection.target);
+      if (!source || !target) {
+        console.log("Invalid connection.");
+        return false;
+      }
 
-    const sTask = TaskRegistry[source.data.type];
-    const tTask = TaskRegistry[target.data.type];
+      const sTask = TaskRegistry[source.data.type];
+      const tTask = TaskRegistry[target.data.type];
 
-    const output = sTask.outputs.find(
-      (item) => item.name === connection.sourceHandle
-    );
-    const input = tTask.inputs.find(
-      (item) => item.name === connection.targetHandle
-    );
+      const output = sTask.outputs.find(
+        (item) => item.name === connection.sourceHandle
+      );
+      const input = tTask.inputs.find(
+        (item) => item.name === connection.targetHandle
+      );
 
-    if (output?.type !== input?.type) {
-      console.log("Invalid connection.");
-      return false
-    }
+      if (output?.type !== input?.type) {
+        console.log("Invalid connection.");
+        return false;
+      }
 
-    return true;
-  }, []);
+      const hasCycle = (node: Node, visited = new Set()) => {
+        if (visited.has(node.id)) return false;
+
+        visited.add(node.id);
+
+        for (const outgoer of getOutgoers(node, nodes, edges)) {
+          if (outgoer.id === connection.source) return true;
+          if (hasCycle(outgoer, visited)) return true;
+        }
+      };
+
+      const detectedCycle = hasCycle(target);
+      return !detectedCycle;
+    },
+    [edges, nodes]
+  );
 
   return (
     <main className="h-full w-full">
