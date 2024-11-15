@@ -34,7 +34,7 @@ async function ExecuteWorkflow(id: string) {
   let execFailed = false;
   for (const phase of execution.phases) {
     // Execute each phase
-    const phaseExecution = await executeWorkflowPhase(phase);
+    const phaseExecution = await executeWorkflowPhase(phase, env);
     if (phaseExecution.status === false) {
       execFailed = true;
       break;
@@ -54,7 +54,7 @@ async function ExecuteWorkflow(id: string) {
   revalidatePath("/workflow/runs");
 }
 
-async function executeWorkflowPhase(phase: ExecutionPhase) {
+async function executeWorkflowPhase(phase: ExecutionPhase, env: any) {
   const startedAt = new Date();
   const node = JSON.parse(phase.node) as AppNode;
   // Update phase status
@@ -71,7 +71,7 @@ async function executeWorkflowPhase(phase: ExecutionPhase) {
   const creditsRequired = TaskRegistry[node.data.type].credits;
   // TODO
   // Decrement user balance credits
-  const status = await executePhase(phase, node);
+  const status = await executePhase(phase, node, env);
   await finalizePhase(phase.id, status);
 
   return {
@@ -168,13 +168,15 @@ async function initializeWorkflowExecution(
 
 async function executePhase(
   phase: ExecutionPhase,
-  node: AppNode
+  node: AppNode,
+  environment: any
 ): Promise<boolean> {
   const executeFn = ExecutorRegistry[node.data.type];
   if (!executeFn) {
     return false;
   }
-  return await executeFn();
+  //youtu.be/RkwbGuL-dzo?t=23898
+  https: return await executeFn(environment);
 }
 
 export default ExecuteWorkflow;
