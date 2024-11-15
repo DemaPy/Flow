@@ -11,6 +11,7 @@ import {
 } from "@/types/workflow";
 import { auth } from "@clerk/nextjs/server";
 import { Workflow } from "@prisma/client";
+import { redirect } from "next/navigation";
 
 export async function runWorkFlow(form: {
   workflowId: Workflow["id"];
@@ -80,5 +81,7 @@ export async function runWorkFlow(form: {
   if (!execution) {
     throw new Error("Workflow execution not created");
   }
+
+  redirect(`/workflow/runs/${workflowId}/${execution.id}`);
   console.log("PLAN", execution);
 }
