@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { datesToDurationString } from "@/lib/workflow/datesToDurationString";
 import getPhasesTotalCost from "@/lib/workflow/getPhasesTotalCost";
+import getWorkflowPhaseDetails from "@/actions/workflows/getWorkflowPhaseDetails";
 
 interface ExecutionViewerProps {
   workflowExecution: WorkflowExecution & { phases: ExecutionPhase[] };
@@ -37,6 +38,12 @@ const ExecutionViewer = ({ workflowExecution }: ExecutionViewerProps) => {
     queryKey: ["execution", workflowExecution.id],
   });
 
+  const phaseDetails = useQuery({
+    queryKey: ["phaseDetails", selectedPhase],
+    enabled: selectedPhase !== null,
+    queryFn: () => getWorkflowPhaseDetails(selectedPhase!),
+  });
+
   const duration = datesToDurationString({
     end: query.data?.completedAt,
     start: query.data?.startedAt,
@@ -45,8 +52,8 @@ const ExecutionViewer = ({ workflowExecution }: ExecutionViewerProps) => {
   const creditsConsumed = getPhasesTotalCost(query.data?.phases || []);
 
   return (
-    <div className="flex w-full h-full">
-      <aside className="w-[440px] min-w-[440px] max-w-[440px] border-r-2 border-separate flex flex-grow flex-col overflow-hidden">
+    <div className="flex w-full h-full relative overflow-hidden">
+      <aside className="w-[440px] min-w-[440px] max-w-[440px] border-r-2 border-separate flex flex-grow flex-col">
         <div className="py-4 px-2 ">
           <ExecutionViewerLabel
             icon={
@@ -118,8 +125,9 @@ const ExecutionViewer = ({ workflowExecution }: ExecutionViewerProps) => {
           })}
         </div>
       </aside>
-
-      asdasd
+      <div className="flex w-full h-full overflow-auto">
+        <pre>{JSON.stringify(phaseDetails, null, 4)}</pre>
+      </div>
     </div>
   );
 };
