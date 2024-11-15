@@ -5,6 +5,10 @@ import {
   ExecutionPhaseStatus,
   ExecutionWorkflowStatus,
 } from "@/types/workflow";
+import { ExecutionPhase } from "@prisma/client";
+import { AppNode } from "@/types/appNode";
+import { TaskRegistry } from "./task/registry";
+import { ExecutorRegistry } from "./executor/registry";
 
 async function ExecuteWorkflow(id: string) {
   const execution = await prisma.workflowExecution.findUnique({
@@ -28,8 +32,13 @@ async function ExecuteWorkflow(id: string) {
 
   let creditsconsumed = 0;
   let execFailed = false;
-  for (const iterator of execution.phases) {
+  for (const phase of execution.phases) {
     // Execute each phase
+    const phaseExecution = await executeWorkflowPhase(phase);
+    if (phaseExecution.status === false) {
+      execFailed = true;
+      break;
+    }
   }
 
   // Update execution status
@@ -43,6 +52,44 @@ async function ExecuteWorkflow(id: string) {
   // Clean up environment
 
   revalidatePath("/workflow/runs");
+}
+
+async function executeWorkflowPhase(phase: ExecutionPhase) {
+  const startedAt = new Date();
+  const node = JSON.parse(phase.node) as AppNode;
+  // Update phase status
+  await prisma.executionPhase.update({
+    where: {
+      id: phase.id,
+    },
+    data: {
+      status: ExecutionPhaseStatus.RUNNING,
+      startedAt,
+    },
+  });
+
+  const creditsRequired = TaskRegistry[node.data.type].credits;
+  // TODO
+  // Decrement user balance credits
+  const status = await executePhase(phase, node);
+  await finalizePhase(phase.id, status);
+
+  return {
+    status: status,
+  };
+}
+
+async function finalizePhase(phaseId: string, status: boolean) {
+  await prisma.executionPhase.update({
+    where: {
+      id: phaseId,
+    },
+    data: {
+      status: status
+        ? ExecutionPhaseStatus.COMPLETED
+        : ExecutionPhaseStatus.FAILED,
+    },
+  });
 }
 
 async function finalizeWorkflowExecution(
@@ -117,6 +164,17 @@ async function initializeWorkflowExecution(
       lastRunStatus: ExecutionWorkflowStatus.RUNNING,
     },
   });
+}
+
+async function executePhase(
+  phase: ExecutionPhase,
+  node: AppNode
+): Promise<boolean> {
+  const executeFn = ExecutorRegistry[node.data.type];
+  if (!executeFn) {
+    return false;
+  }
+  return await executeFn();
 }
 
 export default ExecuteWorkflow;
