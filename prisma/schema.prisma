@@ -34,8 +34,13 @@ model WorkflowExecution {
   trigger String
   status String
   createdAt DateTime @default(now())
+
   startedAt DateTime?
   completedAt DateTime?
+
+  lastRunAt DateTime?
+  lastRunId DateTime?
+  lastRunStatus String?
 
   phases ExecutionPhase[]
   workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)

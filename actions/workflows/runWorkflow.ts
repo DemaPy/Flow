@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import ExecuteWorkflow from "@/lib/workflow/ExecuteWorkflow";
 import flowToExecutionPlan from "@/lib/workflow/flowToExecutionPlan";
 import { TaskRegistry } from "@/lib/workflow/task/registry";
 import {
@@ -82,6 +83,7 @@ export async function runWorkFlow(form: {
     throw new Error("Workflow execution not created");
   }
 
+  ExecuteWorkflow(execution.id)
+
   redirect(`/workflow/runs/${workflowId}/${execution.id}`);
-  console.log("PLAN", execution);
 }
