@@ -50,10 +50,6 @@ async function initializeWorkflowExecution(
     },
   });
 
-  await prisma.workflow.update({
-    where: { id: workflowId },
-    data: {},
-  });
 }
 
 export default ExecuteWorkflow;
