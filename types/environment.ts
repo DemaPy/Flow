@@ -12,6 +12,23 @@ export type Environment = {
   };
 };
 
+export enum LogLevel {
+  INFO = "INFO",
+  ERROR = "ERROR",
+}
+
+export type Log = {
+  message: string;
+  level: LogLevel;
+  timestamp: Date;
+};
+
+export type LogCollector = {
+  getAll(): Log[];
+} & {
+  [K in LogLevel]: (message: string) => void;
+};
+
 export type ExecutionEnv<T extends WorkflowTask> = {
   getInput(name: T["inputs"][number]["name"]): string;
   getBrowser(): Browser | undefined;
@@ -19,4 +36,5 @@ export type ExecutionEnv<T extends WorkflowTask> = {
   getPage(): Page | undefined;
   setPage(page: Page): void;
   setOutput(name: T["outputs"][number]["name"], value: string): void;
+  log: LogCollector;
 };

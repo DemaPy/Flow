@@ -30,8 +30,8 @@ async function LaunchBrowserExecution(
     await page.goto(url);
     env.setPage(page);
     return true;
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    env.log.ERROR(error.message);
     return false;
   }
 }
@@ -41,8 +41,8 @@ async function PageToHtmlExecution(env: ExecutionEnv<typeof PageToHtml>) {
     const html = await env.getPage()!.content();
     env.setOutput("Html", html);
     return true;
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    env.log.ERROR(error.message);
     return false;
   }
 }
@@ -53,12 +53,12 @@ async function ExtractTextFromElementExecution(
   try {
     const selector = env.getInput("Selector");
     if (!selector) {
-      console.log("Selector not found.");
+      env.log.ERROR("Selector not found.");
       return false;
     }
     const html = env.getInput("Html");
     if (!html) {
-      console.log("HTML not found.");
+      env.log.ERROR("HTML not found.");
       return false;
     }
 
@@ -66,20 +66,20 @@ async function ExtractTextFromElementExecution(
     const element = $(selector);
 
     if (!element) {
-      console.log("Element not found.");
+      env.log.ERROR("Element not found.");
       return false;
     }
 
     const extractedText = $.text(element);
     if (!extractedText) {
-      console.log("Element not found.");
+      env.log.ERROR("Text not found.");
       return false;
     }
 
     env.setOutput("Extracted text", extractedText);
     return true;
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    env.log.ERROR(error.message);
     return false;
   }
 }

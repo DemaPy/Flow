@@ -10,9 +10,10 @@ import { ExecutionPhase } from "@prisma/client";
 import { AppNode } from "@/types/appNode";
 import { TaskRegistry } from "./task/registry";
 import { ExecutorRegistry } from "./executor/registry";
-import { Environment, ExecutionEnv } from "@/types/environment";
+import { Environment, ExecutionEnv, LogCollector } from "@/types/environment";
 import { TaskParamType } from "@/types/task";
 import { Edge } from "@xyflow/react";
+import { createLogCollector } from "../log";
 
 async function ExecuteWorkflow(id: string) {
   const execution = await prisma.workflowExecution.findUnique({
@@ -38,9 +39,15 @@ async function ExecuteWorkflow(id: string) {
 
   let creditsconsumed = 0;
   let execFailed = false;
+  const logCollector: LogCollector = createLogCollector();
   for (const phase of execution.phases) {
     // Execute each phase
-    const phaseExecution = await executeWorkflowPhase(phase, env, edges);
+    const phaseExecution = await executeWorkflowPhase(
+      phase,
+      env,
+      edges,
+      logCollector
+    );
     if (phaseExecution.status === false) {
       execFailed = true;
       break;
@@ -76,7 +83,8 @@ async function cleanUpEnv(env: Environment) {
 async function executeWorkflowPhase(
   phase: ExecutionPhase,
   env: Environment,
-  edges: Edge[]
+  edges: Edge[],
+  logCollector: LogCollector
 ) {
   const startedAt = new Date();
   const node = JSON.parse(phase.node) as AppNode;
@@ -96,7 +104,7 @@ async function executeWorkflowPhase(
   const creditsRequired = TaskRegistry[node.data.type].credits;
   // TODO
   // Decrement user balance credits
-  const status = await executePhase(phase, node, env);
+  const status = await executePhase(phase, node, env, logCollector);
 
   const outputs = env.phases[node.id].outputs;
   await finalizePhase(phase.id, status, outputs);
@@ -233,18 +241,27 @@ async function initializeWorkflowExecution(
 async function executePhase(
   phase: ExecutionPhase,
   node: AppNode,
-  environment: Environment
+  environment: Environment,
+  logCollector: LogCollector
 ): Promise<boolean> {
   const executeFn = ExecutorRegistry[node.data.type];
   if (!executeFn) {
     return false;
   }
 
-  const execEnv: ExecutionEnv<any> = createExecEnv(node, environment);
+  const execEnv: ExecutionEnv<any> = createExecEnv(
+    node,
+    environment,
+    logCollector
+  );
   return await executeFn(execEnv);
 }
 
-function createExecEnv(node: AppNode, env: Environment): ExecutionEnv<any> {
+function createExecEnv(
+  node: AppNode,
+  env: Environment,
+  logCollector: LogCollector
+): ExecutionEnv<any> {
   return {
     getInput: (name: string) => env.phases[node.id].inputs[name],
     getBrowser: () => env.browser,
@@ -258,6 +275,7 @@ function createExecEnv(node: AppNode, env: Environment): ExecutionEnv<any> {
     setOutput: (name, value) => {
       env.phases[node.id].outputs[name] = value;
     },
+    log: logCollector,
   };
 }
 
