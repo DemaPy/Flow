@@ -4,11 +4,13 @@ import { revalidatePath } from "next/cache";
 import {
   ExecutionPhaseStatus,
   ExecutionWorkflowStatus,
+  WorkflowTask,
 } from "@/types/workflow";
 import { ExecutionPhase } from "@prisma/client";
 import { AppNode } from "@/types/appNode";
 import { TaskRegistry } from "./task/registry";
 import { ExecutorRegistry } from "./executor/registry";
+import { Environment, ExecutionEnv } from "@/types/environment";
 
 async function ExecuteWorkflow(id: string) {
   const execution = await prisma.workflowExecution.findUnique({
@@ -21,7 +23,7 @@ async function ExecuteWorkflow(id: string) {
   }
 
   // Setup environment
-  const env = {
+  const env: Environment = {
     phases: {},
   };
 
@@ -57,6 +59,7 @@ async function ExecuteWorkflow(id: string) {
 async function executeWorkflowPhase(phase: ExecutionPhase, env: any) {
   const startedAt = new Date();
   const node = JSON.parse(phase.node) as AppNode;
+  setupEnvForPhase(node, env);
   // Update phase status
   await prisma.executionPhase.update({
     where: {
@@ -77,6 +80,24 @@ async function executeWorkflowPhase(phase: ExecutionPhase, env: any) {
   return {
     status: status,
   };
+}
+
+function setupEnvForPhase(node: AppNode, env: Environment) {
+  env.phases[node.id] = {
+    inputs: {},
+    outputs: {},
+  };
+  const inputs = TaskRegistry[node.data.type].inputs;
+  // Get input value from user
+  for (const input of inputs) {
+    const value = node.data.inputs[input.name];
+    if (value.length) {
+      env.phases[node.id].inputs[input.name] = value;
+      continue;
+    }
+
+    // Get input value from outputs
+  }
 }
 
 async function finalizePhase(phaseId: string, status: boolean) {
@@ -169,14 +190,21 @@ async function initializeWorkflowExecution(
 async function executePhase(
   phase: ExecutionPhase,
   node: AppNode,
-  environment: any
+  environment: Environment
 ): Promise<boolean> {
   const executeFn = ExecutorRegistry[node.data.type];
   if (!executeFn) {
     return false;
   }
-  //youtu.be/RkwbGuL-dzo?t=23898
-  https: return await executeFn(environment);
+
+  const execEnv: ExecutionEnv<any> = createExecEnv(node, environment);
+  return await executeFn(execEnv);
+}
+
+function createExecEnv(node: AppNode, env: Environment) {
+  return {
+    getInput: (name: string) => env.phases[node.id].inputs[name],
+  };
 }
 
 export default ExecuteWorkflow;
