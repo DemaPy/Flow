@@ -66,4 +66,15 @@ model ExecutionPhase {
 
   workflowExecutionId String
   execution WorkflowExecution @relation(fields: [workflowExecutionId], references: [id], onDelete: Cascade)
+  logs Executionlog[]
+}
+
+model Executionlog {
+  id String @id @default(cuid())
+  logLevel String
+  message String
+  timestamp DateTime @default(now())
+
+  executionPhaseId String
+  executionPhase ExecutionPhase @relation(fields: [executionPhaseId], references: [id], onDelete: Cascade)
 }
