@@ -22,10 +22,12 @@ async function LaunchBrowserExecution(
   env: ExecutionEnv<typeof LaunchBrowser>
 ): Promise<boolean> {
   try {
-    console.log(env.getInput("Website Url"));
-    const browser = await puppetter.launch({ headless: false });
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    await browser.close();
+    const url = env.getInput("Website Url");
+    const browser = await puppetter.launch({ headless: true });
+    env.setBrowser(browser);
+    const page = await browser.newPage();
+    await page.goto(url);
+    env.setPage(page);
     return true;
   } catch (error) {
     console.log(error);
@@ -35,7 +37,8 @@ async function LaunchBrowserExecution(
 
 async function PageToHtmlExecution(env: ExecutionEnv<typeof PageToHtml>) {
   try {
-    console.log(env.getInput("Wep page"));
+    const html = await env.getPage()!.content();
+    env.setOutput("Html", html);
     return true;
   } catch (error) {
     console.log(error);

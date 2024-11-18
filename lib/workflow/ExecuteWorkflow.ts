@@ -11,6 +11,7 @@ import { AppNode } from "@/types/appNode";
 import { TaskRegistry } from "./task/registry";
 import { ExecutorRegistry } from "./executor/registry";
 import { Environment, ExecutionEnv } from "@/types/environment";
+import { TaskParamType } from "@/types/task";
 
 async function ExecuteWorkflow(id: string) {
   const execution = await prisma.workflowExecution.findUnique({
@@ -52,8 +53,21 @@ async function ExecuteWorkflow(id: string) {
   );
 
   // Clean up environment
+  await cleanUpEnv(env);
 
   revalidatePath("/workflow/runs");
+}
+
+async function cleanUpEnv(env: Environment) {
+  if (env.browser) {
+    await env.browser
+      .close()
+      .catch((err) =>
+        console.log(
+          "Cannot close browser. Error: " + JSON.stringify(err, null, 4)
+        )
+      );
+  }
 }
 
 async function executeWorkflowPhase(phase: ExecutionPhase, env: Environment) {
@@ -68,7 +82,7 @@ async function executeWorkflowPhase(phase: ExecutionPhase, env: Environment) {
     data: {
       status: ExecutionPhaseStatus.RUNNING,
       startedAt,
-      inputs: JSON.stringify(env.phases[node.id].inputs)
+      inputs: JSON.stringify(env.phases[node.id].inputs),
     },
   });
 
@@ -76,7 +90,9 @@ async function executeWorkflowPhase(phase: ExecutionPhase, env: Environment) {
   // TODO
   // Decrement user balance credits
   const status = await executePhase(phase, node, env);
-  await finalizePhase(phase.id, status);
+
+  const outputs = env.phases[node.id].outputs;
+  await finalizePhase(phase.id, status, outputs);
 
   return {
     status: status,
@@ -91,6 +107,7 @@ function setupEnvForPhase(node: AppNode, env: Environment) {
   const inputs = TaskRegistry[node.data.type].inputs;
   // Get input value from user
   for (const input of inputs) {
+    if (input.type === TaskParamType.BROWSER_INSTANCE) continue;
     const value = node.data.inputs[input.name];
     if (value.length) {
       env.phases[node.id].inputs[input.name] = value;
@@ -101,12 +118,17 @@ function setupEnvForPhase(node: AppNode, env: Environment) {
   }
 }
 
-async function finalizePhase(phaseId: string, status: boolean) {
+async function finalizePhase(
+  phaseId: string,
+  status: boolean,
+  outputs: Record<string, string>
+) {
   await prisma.executionPhase.update({
     where: {
       id: phaseId,
     },
     data: {
+      outputs: JSON.stringify(outputs),
       status: status
         ? ExecutionPhaseStatus.COMPLETED
         : ExecutionPhaseStatus.FAILED,
@@ -202,9 +224,20 @@ async function executePhase(
   return await executeFn(execEnv);
 }
 
-function createExecEnv(node: AppNode, env: Environment) {
+function createExecEnv(node: AppNode, env: Environment): ExecutionEnv<any> {
   return {
     getInput: (name: string) => env.phases[node.id].inputs[name],
+    getBrowser: () => env.browser,
+    setBrowser: (browser) => {
+      env.browser = browser;
+    },
+    setPage: (page) => {
+      env.page = page;
+    },
+    getPage: () => env.page,
+    setOutput: (name, value) => {
+      env.phases[node.id].outputs[name] = value;
+    },
   };
 }
 
