@@ -56,7 +56,7 @@ async function ExecuteWorkflow(id: string) {
   revalidatePath("/workflow/runs");
 }
 
-async function executeWorkflowPhase(phase: ExecutionPhase, env: any) {
+async function executeWorkflowPhase(phase: ExecutionPhase, env: Environment) {
   const startedAt = new Date();
   const node = JSON.parse(phase.node) as AppNode;
   setupEnvForPhase(node, env);
@@ -68,6 +68,7 @@ async function executeWorkflowPhase(phase: ExecutionPhase, env: any) {
     data: {
       status: ExecutionPhaseStatus.RUNNING,
       startedAt,
+      inputs: JSON.stringify(env.phases[node.id].inputs)
     },
   });
 

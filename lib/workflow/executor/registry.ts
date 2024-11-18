@@ -1,4 +1,4 @@
-import { Environment, ExecutionEnv } from "@/types/environment";
+import { ExecutionEnv } from "@/types/environment";
 import { TaskType } from "@/types/task";
 import { WorkflowTask } from "@/types/workflow";
 import puppetter from "puppeteer";
@@ -34,11 +34,23 @@ async function LaunchBrowserExecution(
 }
 
 async function PageToHtmlExecution(env: ExecutionEnv<typeof PageToHtml>) {
-  return true;
+  try {
+    console.log(env.getInput("Wep page"));
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
 }
 
 async function ExtractTextFromElementExecution(
   env: ExecutionEnv<typeof ExtractTextFromElement>
 ) {
-  return true;
+  try {
+    console.log(env.getInput("Html"));
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
 }
