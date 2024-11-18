@@ -38,6 +38,7 @@ model WorkflowExecution {
   trigger String
   status String
   createdAt DateTime @default(now())
+  definition String @default("{}")
 
   startedAt DateTime?
   completedAt DateTime?

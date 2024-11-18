@@ -5,6 +5,7 @@ import puppetter from "puppeteer";
 import { LaunchBrowser } from "../task/LaunchBrowser";
 import { PageToHtml } from "../task/PageToHtml";
 import { ExtractTextFromElement } from "../task/ExtractTextFromElement";
+import * as cheerio from "cheerio";
 
 type ExecutorRegistryType = {
   [K in TaskType]: (
@@ -50,7 +51,32 @@ async function ExtractTextFromElementExecution(
   env: ExecutionEnv<typeof ExtractTextFromElement>
 ) {
   try {
-    console.log(env.getInput("Html"));
+    const selector = env.getInput("Selector");
+    if (!selector) {
+      console.log("Selector not found.");
+      return false;
+    }
+    const html = env.getInput("Html");
+    if (!html) {
+      console.log("HTML not found.");
+      return false;
+    }
+
+    const $ = cheerio.load(html);
+    const element = $(selector);
+
+    if (!element) {
+      console.log("Element not found.");
+      return false;
+    }
+
+    const extractedText = $.text(element);
+    if (!extractedText) {
+      console.log("Element not found.");
+      return false;
+    }
+
+    env.setOutput("Extracted text", extractedText);
     return true;
   } catch (error) {
     console.log(error);

@@ -58,6 +58,7 @@ export async function runWorkFlow(form: {
     data: {
       workflowId,
       userId,
+      definition: flowDefinition,
       status: ExecutionWorkflowStatus.PENDING,
       startedAt: new Date(),
       trigger: WorkflowExecutionTrigger.MANUAL,
