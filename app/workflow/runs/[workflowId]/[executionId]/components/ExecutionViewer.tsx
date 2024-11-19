@@ -1,6 +1,9 @@
 "use client";
 import getWorkflowExecutionPhases from "@/actions/workflows/getWorkflowExecutionPhases";
-import { ExecutionWorkflowStatus } from "@/types/workflow";
+import {
+  ExecutionPhaseStatus,
+  ExecutionWorkflowStatus,
+} from "@/types/workflow";
 import {
   ExecutionPhase,
   Executionlog,
@@ -42,6 +45,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import ExecuteStatusBadge from "./ExecuteStatusBadge";
 
 interface ExecutionViewerProps {
   workflowExecution: WorkflowExecution & { phases: ExecutionPhase[] };
@@ -142,7 +146,9 @@ const ExecutionViewer = ({ workflowExecution }: ExecutionViewerProps) => {
                   <Badge variant={"outline"}>{idx + 1}</Badge>
                   <p className="font-semibold">{phase.name}</p>
                 </div>
-                <p className="text-xs text-muted-foreground">{phase.status}</p>
+                <ExecuteStatusBadge
+                  status={phase.status as ExecutionPhaseStatus}
+                />
               </Button>
             );
           })}
