@@ -3,6 +3,7 @@
 import React from "react";
 import Logo from "./Logo";
 import RoutesList from "./RoutesList";
+import UserAvailableCredits from "./UserAvailableCredits";
 
 const DesktopSidebar = () => {
   return (
@@ -10,7 +11,9 @@ const DesktopSidebar = () => {
       <div className="flex items-center justify-center gap-2 border-b-[1px] border-separate p-4">
         <Logo />
       </div>
-      <div className="p-2">TODO: Credits</div>
+      <div className="p-2">
+        <UserAvailableCredits />
+      </div>
       <div className="flex flex-col gap-2 p-2">
         <RoutesList />
       </div>

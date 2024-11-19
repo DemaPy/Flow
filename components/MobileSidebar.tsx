@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { MenuIcon } from "lucide-react";
 import Logo from "./Logo";
 import RoutesList from "./RoutesList";
+import UserAvailableCredits from "./UserAvailableCredits";
 
 const MobileSidebar = () => {
   const [isOpen, setOpen] = useState(false);
@@ -19,6 +20,7 @@ const MobileSidebar = () => {
           </SheetTrigger>
           <SheetContent className="w-full sm:w-[540px] space-y-4" side="left">
             <Logo />
+            <UserAvailableCredits />
             <div className="flex flex-col gap-1">
               <RoutesList setClose={() => setOpen(false)} />
             </div>

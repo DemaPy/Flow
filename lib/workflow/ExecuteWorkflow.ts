@@ -14,8 +14,13 @@ import { Environment, ExecutionEnv, LogCollector } from "@/types/environment";
 import { TaskParamType } from "@/types/task";
 import { Edge } from "@xyflow/react";
 import { createLogCollector } from "../log";
+import { auth } from "@clerk/nextjs/server";
 
 async function ExecuteWorkflow(id: string) {
+  const { userId } = auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
   const execution = await prisma.workflowExecution.findUnique({
     where: { id },
     include: { workflow: true, phases: true },
@@ -37,11 +42,15 @@ async function ExecuteWorkflow(id: string) {
   await initializePhaseStatuses(execution);
   // Initialize phases status
 
-  let creditsconsumed = 0;
   let execFailed = false;
   for (const phase of execution.phases) {
     // Execute each phase and create log collector for each phase
-    const phaseExecution = await executeWorkflowPhase(phase, env, edges);
+    const phaseExecution = await executeWorkflowPhase(
+      phase,
+      env,
+      edges,
+      userId
+    );
     if (phaseExecution.status === false) {
       execFailed = true;
       break;
@@ -52,8 +61,7 @@ async function ExecuteWorkflow(id: string) {
   await finalizeWorkflowExecution(
     execution.id,
     execution.workflowId,
-    execFailed,
-    creditsconsumed
+    execFailed
   );
 
   // Clean up environment
@@ -77,7 +85,8 @@ async function cleanUpEnv(env: Environment) {
 async function executeWorkflowPhase(
   phase: ExecutionPhase,
   env: Environment,
-  edges: Edge[]
+  edges: Edge[],
+  userId: string
 ) {
   const logCollector: LogCollector = createLogCollector();
 
@@ -96,17 +105,51 @@ async function executeWorkflowPhase(
     },
   });
 
-  const creditsRequired = TaskRegistry[node.data.type].credits;
-  // TODO
   // Decrement user balance credits
-  const status = await executePhase(phase, node, env, logCollector);
+  const creditsRequired = TaskRegistry[node.data.type].credits;
+  let success = await DecrementCredits(userId, creditsRequired, logCollector);
+  const creditsConsumed = success ? creditsRequired : 0;
+  if (success) {
+    success = await executePhase(phase, node, env, logCollector);
+  }
 
   const outputs = env.phases[node.id].outputs;
-  await finalizePhase(phase.id, status, outputs, logCollector);
+  await finalizePhase(
+    phase.id,
+    success,
+    outputs,
+    logCollector,
+    creditsConsumed
+  );
 
   return {
-    status: status,
+    status: success,
   };
+}
+
+async function DecrementCredits(
+  userId: string,
+  amount: number,
+  logCollector: LogCollector
+) {
+  try {
+    await prisma.userBalance.update({
+      where: {
+        userId,
+        credits: { gte: amount },
+      },
+      data: {
+        credits: {
+          decrement: amount,
+        },
+      },
+    });
+    return true;
+  } catch (error) {
+    console.log(error);
+    logCollector.ERROR("Insufficient credits");
+    return false;
+  }
 }
 
 function setupEnvForPhase(node: AppNode, env: Environment, edges: Edge[]) {
@@ -145,7 +188,8 @@ async function finalizePhase(
   phaseId: string,
   status: boolean,
   outputs: Record<string, string>,
-  logCollector: LogCollector
+  logCollector: LogCollector,
+  creditsConsumed: number
 ) {
   const completedAt = new Date();
 
@@ -154,6 +198,7 @@ async function finalizePhase(
       id: phaseId,
     },
     data: {
+      creditsConsumed,
       logs: {
         createMany: {
           data: logCollector.getAll().map((item) => ({
@@ -175,8 +220,7 @@ async function finalizePhase(
 async function finalizeWorkflowExecution(
   executionId: string,
   workflowId: string,
-  executionFailed: boolean,
-  creditsConsumed: number
+  executionFailed: boolean
 ) {
   const finalStatus = executionFailed
     ? ExecutionWorkflowStatus.FAILED
@@ -187,7 +231,6 @@ async function finalizeWorkflowExecution(
     data: {
       status: finalStatus,
       completedAt: new Date(),
-      creditsConsumed,
     },
   });
 
