@@ -14,6 +14,13 @@ function getWorkflowPhaseDetails(phaseId: string) {
       userId,
       id: phaseId,
     },
+    include: {
+      logs: {
+        orderBy: {
+          timestamp: "asc"
+        }
+      }
+    }
   });
 }
 

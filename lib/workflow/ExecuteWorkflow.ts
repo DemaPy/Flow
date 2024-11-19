@@ -39,15 +39,9 @@ async function ExecuteWorkflow(id: string) {
 
   let creditsconsumed = 0;
   let execFailed = false;
-  const logCollector: LogCollector = createLogCollector();
   for (const phase of execution.phases) {
-    // Execute each phase
-    const phaseExecution = await executeWorkflowPhase(
-      phase,
-      env,
-      edges,
-      logCollector
-    );
+    // Execute each phase and create log collector for each phase
+    const phaseExecution = await executeWorkflowPhase(phase, env, edges);
     if (phaseExecution.status === false) {
       execFailed = true;
       break;
@@ -83,9 +77,10 @@ async function cleanUpEnv(env: Environment) {
 async function executeWorkflowPhase(
   phase: ExecutionPhase,
   env: Environment,
-  edges: Edge[],
-  logCollector: LogCollector
+  edges: Edge[]
 ) {
+  const logCollector: LogCollector = createLogCollector();
+
   const startedAt = new Date();
   const node = JSON.parse(phase.node) as AppNode;
   setupEnvForPhase(node, env, edges);
@@ -107,7 +102,7 @@ async function executeWorkflowPhase(
   const status = await executePhase(phase, node, env, logCollector);
 
   const outputs = env.phases[node.id].outputs;
-  await finalizePhase(phase.id, status, outputs);
+  await finalizePhase(phase.id, status, outputs, logCollector);
 
   return {
     status: status,
@@ -149,13 +144,26 @@ function setupEnvForPhase(node: AppNode, env: Environment, edges: Edge[]) {
 async function finalizePhase(
   phaseId: string,
   status: boolean,
-  outputs: Record<string, string>
+  outputs: Record<string, string>,
+  logCollector: LogCollector
 ) {
+  const completedAt = new Date();
+
   await prisma.executionPhase.update({
     where: {
       id: phaseId,
     },
     data: {
+      logs: {
+        createMany: {
+          data: logCollector.getAll().map((item) => ({
+            message: item.message,
+            timestamp: item.timestamp,
+            logLevel: item.level,
+          })),
+        },
+      },
+      completedAt,
       outputs: JSON.stringify(outputs),
       status: status
         ? ExecutionPhaseStatus.COMPLETED

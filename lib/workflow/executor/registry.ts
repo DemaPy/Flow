@@ -25,10 +25,12 @@ async function LaunchBrowserExecution(
   try {
     const url = env.getInput("Website Url");
     const browser = await puppetter.launch({ headless: true });
+    env.log.INFO("Browser started successfully");
     env.setBrowser(browser);
     const page = await browser.newPage();
     await page.goto(url);
     env.setPage(page);
+    env.log.INFO(`Page ${url} loaded successfully`);
     return true;
   } catch (error: any) {
     env.log.ERROR(error.message);
