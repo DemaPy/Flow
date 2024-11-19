@@ -43,6 +43,7 @@ async function ExecuteWorkflow(id: string) {
   // Initialize phases status
 
   let execFailed = false;
+  let creditsConsumed = 0;
   for (const phase of execution.phases) {
     // Execute each phase and create log collector for each phase
     const phaseExecution = await executeWorkflowPhase(
@@ -51,6 +52,7 @@ async function ExecuteWorkflow(id: string) {
       edges,
       userId
     );
+    creditsConsumed = phaseExecution.creditsConsumed;
     if (phaseExecution.status === false) {
       execFailed = true;
       break;
@@ -61,7 +63,8 @@ async function ExecuteWorkflow(id: string) {
   await finalizeWorkflowExecution(
     execution.id,
     execution.workflowId,
-    execFailed
+    execFailed,
+    creditsConsumed
   );
 
   // Clean up environment
@@ -124,6 +127,7 @@ async function executeWorkflowPhase(
 
   return {
     status: success,
+    creditsConsumed,
   };
 }
 
@@ -220,7 +224,8 @@ async function finalizePhase(
 async function finalizeWorkflowExecution(
   executionId: string,
   workflowId: string,
-  executionFailed: boolean
+  executionFailed: boolean,
+  creditsConsumed: number
 ) {
   const finalStatus = executionFailed
     ? ExecutionWorkflowStatus.FAILED
@@ -229,6 +234,7 @@ async function finalizeWorkflowExecution(
   await prisma.workflowExecution.update({
     where: { id: executionId },
     data: {
+      creditsConsumed,
       status: finalStatus,
       completedAt: new Date(),
     },
