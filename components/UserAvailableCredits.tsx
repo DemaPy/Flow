@@ -28,7 +28,7 @@ const UserAvailableCredits = () => {
       <CoinsIcon size={20} className="text-primary" />
       <span className="font-semibold capitalize">
         {query.isLoading && <Loader2Icon className="animate-spin w-4 h-4" />}
-        {!query.isLoading && !query.data && "-"}
+        {!query.isLoading && query.data === undefined && "-"}
         {!query.isLoading && query.data && (
           <CountUpWrapper value={query.data} />
         )}

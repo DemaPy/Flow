@@ -46,6 +46,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import ExecuteStatusBadge from "./ExecuteStatusBadge";
+import { CountUpWrapper } from "@/components/CountUpWrapper";
 
 interface ExecutionViewerProps {
   workflowExecution: WorkflowExecution & { phases: ExecutionPhase[] };
@@ -120,7 +121,7 @@ const ExecutionViewer = ({ workflowExecution }: ExecutionViewerProps) => {
           <ExecutionViewerLabel
             icon={<CoinsIcon size={20} className="stroke-muted-foreground" />}
             label={"Credits consumed"}
-            value={creditsConsumed}
+            value={<CountUpWrapper value={creditsConsumed} />}
           />
         </div>
         <Separator />
@@ -177,7 +178,7 @@ const ExecutionViewer = ({ workflowExecution }: ExecutionViewerProps) => {
                 <CoinsIcon size={18} className="stroke-muted-foreground" />
                 <div className="flex gap-1 items-center">
                   <span>Credits</span>
-                  <span>TODO</span>
+                  <span>{phaseDetails.data.creditsConsumed}</span>
                 </div>
               </Badge>
               <Badge variant="outline" className="space-x-4">
