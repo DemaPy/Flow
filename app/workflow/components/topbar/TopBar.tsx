@@ -8,6 +8,7 @@ import React from "react";
 import SaveBtn from "./SaveBtn";
 import { Workflow } from "@prisma/client";
 import ExecuteBtn from "./ExecuteBtn";
+import NavigationTabs from "./NavigationTabs";
 
 interface TopBarProps {
   title: string;
@@ -46,6 +47,7 @@ const TopBar = ({
           )}
         </div>
       </div>
+      <NavigationTabs workflowId={workflowId} />
       {!hideButtons && (
         <div className="flex gap-1 flex-1 justify-end">
           <ExecuteBtn workflowId={workflowId} />
