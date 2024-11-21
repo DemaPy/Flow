@@ -27,6 +27,8 @@ model Workflow {
   lastRunStatus String?
 
   executions WorkflowExecution[]
+  executionPlan String?
+  creditsCost Int @default(0)
 
   @@unique([name, userId])
 }
