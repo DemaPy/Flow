@@ -18,6 +18,9 @@ model Workflow {
 
   definition String
   status String
+
+  cron String?
+  nextRunAt DateTime?
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
