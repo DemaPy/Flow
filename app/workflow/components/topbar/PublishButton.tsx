@@ -1,7 +1,6 @@
 "use client";
 
 import { publishWorkFlow } from "@/actions/workflows/publishWorkFlow";
-import { runWorkFlow } from "@/actions/workflows/runWorkflow";
 import { Button } from "@/components/ui/button";
 import useExecutionPlan from "@/hooks/useExecutionPlan";
 import { Workflow } from "@prisma/client";
@@ -21,10 +20,10 @@ const PublishButton = ({ workflowId }: PublishButton) => {
   const { mutate, isPending } = useMutation({
     mutationFn: publishWorkFlow,
     onSuccess() {
-      toast.success("Execution finished.", { id: "flow-execution" });
+      toast.success("Workflow published.", { id: workflowId });
     },
     onError() {
-      toast.error("Something went wrong.", { id: "flow-execution" });
+      toast.error("Something went wrong.", { id: workflowId });
     },
   });
 
@@ -36,10 +35,10 @@ const PublishButton = ({ workflowId }: PublishButton) => {
         if (!plan) {
           return;
         }
-        toast.loading("Execution started...", { id: "flow-execution" });
+        toast.loading("Workflow is publishing...", { id: workflowId });
         mutate({
           workflowId,
-          definition: ""
+          definition: JSON.stringify(toObject()),
         });
       }}
       variant={"outline"}

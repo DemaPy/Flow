@@ -16,6 +16,7 @@ interface TopBarProps {
   subtitle?: string;
   workflowId: Workflow["id"];
   hideButtons?: boolean;
+  isPublished?: boolean;
 }
 
 const TopBar = ({
@@ -23,6 +24,7 @@ const TopBar = ({
   subtitle,
   workflowId,
   hideButtons = false,
+  isPublished
 }: TopBarProps) => {
   const router = useRouter();
   return (
@@ -51,9 +53,13 @@ const TopBar = ({
       <NavigationTabs workflowId={workflowId} />
       {!hideButtons && (
         <div className="flex gap-1 flex-1 justify-end">
-          <PublishButton workflowId={workflowId} />
           <ExecuteBtn workflowId={workflowId} />
-          <SaveBtn workflowId={workflowId} />
+          {!isPublished && (
+            <>
+              <PublishButton workflowId={workflowId} />
+              <SaveBtn workflowId={workflowId} />
+            </>
+          )}
         </div>
       )}
     </header>

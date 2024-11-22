@@ -1,10 +1,12 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import calculateWorkflowCosts from "@/lib/workflow/calculateWorkflowCosts";
 import flowToExecutionPlan from "@/lib/workflow/flowToExecutionPlan";
 import { WorkflowStatus } from "@/types/workflow";
 import { auth } from "@clerk/nextjs/server";
 import { Workflow } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 export async function publishWorkFlow({
   workflowId,
@@ -32,7 +34,7 @@ export async function publishWorkFlow({
     throw new Error("Workflow not found");
   }
 
-  if (workflow.status !== "DRAFT") {
+  if (workflow.status !== WorkflowStatus.DRAFT) {
     throw new Error("Workflow is not a draft");
   }
 
@@ -45,4 +47,19 @@ export async function publishWorkFlow({
   if (!result.executionPlan) {
     throw new Error("No execution plan generated");
   }
+  const creditsCost = calculateWorkflowCosts(flow.nodes);
+  await prisma.workflow.update({
+    where: {
+      id: workflowId,
+      userId,
+    },
+    data: {
+      definition: definition,
+      executionPlan: JSON.stringify(result),
+      status: WorkflowStatus.PUBLISHED,
+      creditsCost,
+    },
+  });
+
+  revalidatePath(`/workflow/editor/${workflowId}`);
 }

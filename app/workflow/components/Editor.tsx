@@ -6,6 +6,7 @@ import FlowEditor from "./FlowEditor";
 import TopBar from "./topbar/TopBar";
 import TaskMenu from "./TaskMenu";
 import { FlowValidationContextProvider } from "@/components/context/FlowValidation";
+import { WorkflowStatus } from "@/types/workflow";
 
 interface EditorProps {
   workflow: Workflow;
@@ -17,6 +18,7 @@ export default function Editor({ workflow }: EditorProps) {
       <ReactFlowProvider>
         <div className="flex flex-col h-full w-full overflow-hidden">
           <TopBar
+            isPublished={workflow.status === WorkflowStatus.PUBLISHED}
             workflowId={workflow.id}
             title="Workflow editor"
             subtitle={workflow.name}
