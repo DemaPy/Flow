@@ -7,6 +7,7 @@ import { FileTextIcon, PlayIcon, ShuffleIcon } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import WorkflowActions from "../components/WorkflowActions";
+import RunButton from "../components/RunButton";
 
 interface DefaultProps {
   workflow: Workflow;
@@ -50,6 +51,7 @@ const Default = ({ workflow }: DefaultProps) => {
           </div>
         </div>
         <div className="flex items-center space-x-2">
+          <RunButton workflowId={workflow.id} />
           <Link
             href={`/workflow/editor/${workflow.id}`}
             className={cn(

@@ -40,34 +40,37 @@ export async function runWorkFlow(form: {
   }
 
   let execPlan: WorkflowExecutionPlan;
+  let workflowDefinition = flowDefinition;
   if (workflow.status === WorkflowStatus.PUBLISHED) {
     if (!workflow.executionPlan) {
       throw new Error("Execution plan found in published workflow");
     }
-    execPlan = JSON.parse(workflow.executionPlan)
+    workflowDefinition = workflow.definition;
+    execPlan = JSON.parse(workflow.executionPlan).executionPlan
   } else {
     if (!flowDefinition) {
       throw new Error("Flow definition not found");
     }
-  
+
     const flow = JSON.parse(flowDefinition);
     const result = flowToExecutionPlan(flow.nodes, flow.edges);
     if (result.error) {
       throw new Error("Flow is not valid");
     }
-  
+
     if (!result.executionPlan) {
       throw new Error("Execution plan not generated");
     }
-  
+
     execPlan = result.executionPlan;
   }
-
+  console.log(execPlan);
+  
   const execution = await prisma.workflowExecution.create({
     data: {
       workflowId,
       userId,
-      definition: flowDefinition,
+      definition: workflowDefinition,
       status: ExecutionWorkflowStatus.PENDING,
       startedAt: new Date(),
       trigger: WorkflowExecutionTrigger.MANUAL,
@@ -93,7 +96,7 @@ export async function runWorkFlow(form: {
     throw new Error("Workflow execution not created");
   }
 
-  ExecuteWorkflow(execution.id)
+  ExecuteWorkflow(execution.id);
 
   redirect(`/workflow/runs/${workflowId}/${execution.id}`);
 }
