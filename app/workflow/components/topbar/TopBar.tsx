@@ -10,6 +10,7 @@ import { Workflow } from "@prisma/client";
 import ExecuteBtn from "./ExecuteBtn";
 import NavigationTabs from "./NavigationTabs";
 import PublishButton from "./PublishButton";
+import UnPublishButton from "./UnPublishButton";
 
 interface TopBarProps {
   title: string;
@@ -24,7 +25,7 @@ const TopBar = ({
   subtitle,
   workflowId,
   hideButtons = false,
-  isPublished
+  isPublished,
 }: TopBarProps) => {
   const router = useRouter();
   return (
@@ -54,6 +55,7 @@ const TopBar = ({
       {!hideButtons && (
         <div className="flex gap-1 flex-1 justify-end">
           <ExecuteBtn workflowId={workflowId} />
+          {isPublished && <UnPublishButton workflowId={workflowId} />}
           {!isPublished && (
             <>
               <PublishButton workflowId={workflowId} />
