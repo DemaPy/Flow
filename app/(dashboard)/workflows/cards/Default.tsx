@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import { WorkflowStatus } from "@/types/workflow";
 import { Workflow } from "@prisma/client";
 import {
+  CheckIcon,
+  ChevronRightIcon,
   CoinsIcon,
   CornerDownRight,
   FileTextIcon,
@@ -18,6 +20,8 @@ import RunButton from "../components/RunButton";
 import SchedulerDialog from "../components/SchedulerDialog";
 import TooltipWrapper from "@/components/TooltipWrapper";
 import { Badge } from "@/components/ui/badge";
+import { format, formatDistanceToNow } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 
 interface DefaultProps {
   workflow: Workflow;
@@ -89,15 +93,54 @@ const Default = ({ workflow }: DefaultProps) => {
           />
         </div>
       </CardContent>
-      <LastRunWorkflowDetails workflow={workflow}/>
+      <LastRunWorkflowDetails workflow={workflow} />
     </Card>
   );
 };
 
-function LastRunWorkflowDetails(workflow: Workflow) {
+function LastRunWorkflowDetails({ workflow }: { workflow: Workflow }) {
+  if (workflow.status === WorkflowStatus.DRAFT) {
+    return null;
+  }
+  const formattedStartedAt =
+    workflow.lastRunAt &&
+    formatDistanceToNow(workflow.lastRunAt, { addSuffix: true });
+
+  const nextSchedule =
+    workflow.nextRunAt && format(workflow.nextRunAt, "yyyy-MM-dd HH:mm");
+
+  const nextScheduleUTC =
+    workflow.nextRunAt && formatInTimeZone(workflow.nextRunAt, "UTC", "HH:mm");
+
   return (
-    <div>Last Run Details</div>
-  )
+    <div className="bg-primary/5 px-4 py-1 justify-between items-center flex">
+      <div className="flex items-center text-sm gap-2">
+        {workflow.lastRunAt && (
+          <Link
+            href={`/workflow/runs/${workflow.id}/${workflow.lastRunId}`}
+            className="flex items-center text-sm gap-2 group"
+          >
+            <span>Last Run:</span>
+            <span>{workflow.lastRunStatus}</span>
+            <span>{formattedStartedAt}</span>
+            <ChevronRightIcon
+              size={14}
+              className="-translate-x-[2px] group-hover:translate-x-0 transition"
+            />
+          </Link>
+        )}
+        {!workflow.lastRunAt && <p>No runs yet</p>}
+      </div>
+      {workflow.nextRunAt && (
+        <div className="flex items-center text-sm gap-2">
+          <CheckIcon size={20} />
+          <span>Next run at:</span>
+          <span>{nextSchedule}</span>
+          <span className="text-xs">{nextScheduleUTC} UTC</span>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function ScheduleSection({
