@@ -6,6 +6,7 @@ import { Workflow } from "@prisma/client";
 import {
   CheckIcon,
   ChevronRightIcon,
+  ClockIcon,
   CoinsIcon,
   CornerDownRight,
   FileTextIcon,
@@ -133,7 +134,7 @@ function LastRunWorkflowDetails({ workflow }: { workflow: Workflow }) {
       </div>
       {workflow.nextRunAt && (
         <div className="flex items-center text-sm gap-2">
-          <CheckIcon size={20} />
+          <ClockIcon size={16} />
           <span>Next run at:</span>
           <span>{nextSchedule}</span>
           <span className="text-xs">{nextScheduleUTC} UTC</span>
