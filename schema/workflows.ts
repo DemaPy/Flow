@@ -5,4 +5,12 @@ export const workflowSchema = z.object({
   description: z.string().max(80).optional(),
 });
 
-export type workflowShemaType = z.infer<typeof workflowSchema>
+export type workflowShemaType = z.infer<typeof workflowSchema>;
+
+export const workflowSchemaDuplicate = workflowSchema.extend({
+  workflowId: z.string(),
+});
+
+export type workflowDuplicateShemaType = z.infer<
+  typeof workflowSchemaDuplicate
+>;

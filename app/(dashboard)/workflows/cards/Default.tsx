@@ -23,6 +23,7 @@ import TooltipWrapper from "@/components/TooltipWrapper";
 import { Badge } from "@/components/ui/badge";
 import { format, formatDistanceToNow } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
+import DuplicateWorkFlowDialog from "../actions/duplicate";
 
 interface DefaultProps {
   workflow: Workflow;
@@ -64,6 +65,8 @@ const Default = ({ workflow }: DefaultProps) => {
                   Draft
                 </span>
               )}
+
+              <DuplicateWorkFlowDialog workflowId={workflow.id} />
             </h3>
             {workflow.status !== WorkflowStatus.DRAFT && (
               <ScheduleSection
