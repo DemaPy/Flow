@@ -89,9 +89,16 @@ const Default = ({ workflow }: DefaultProps) => {
           />
         </div>
       </CardContent>
+      <LastRunWorkflowDetails workflow={workflow}/>
     </Card>
   );
 };
+
+function LastRunWorkflowDetails(workflow: Workflow) {
+  return (
+    <div>Last Run Details</div>
+  )
+}
 
 function ScheduleSection({
   workflowId,

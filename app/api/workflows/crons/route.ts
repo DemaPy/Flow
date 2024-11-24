@@ -2,7 +2,8 @@ import { getAppUrl } from "@/lib/appUrl";
 import prisma from "@/lib/prisma";
 import { WorkflowStatus } from "@/types/workflow";
 import { Workflow } from "@prisma/client";
-import { error } from "console";
+
+// GET WORKFLOWS THAT HAS LTE DATE
 
 export async function GET(req: Request) {
   const now = new Date();
@@ -19,17 +20,19 @@ export async function GET(req: Request) {
     },
   });
 
-  console.log("RUN workflow");
   for (const workflow of workflows) {
     triggerWorkflow(workflow);
   }
 
-  return new Response(null, { status: 200 });
+  return Response.json({ workflowsToRun: workflows }, { status: 200 });
 }
 
 function triggerWorkflow({ id }: { id: Workflow["id"] }) {
   const triggerApiUrl = getAppUrl(`api/workflows/execute?workflowId=${id}`);
   fetch(triggerApiUrl, {
+    headers: {
+      Authorization: `Bearer ${process.env.DEMA_SECRET}`,
+    },
     cache: "no-store",
     signal: AbortSignal.timeout(5000),
   }).catch((err) => console.log(err.message));

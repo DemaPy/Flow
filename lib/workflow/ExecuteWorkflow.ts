@@ -14,13 +14,8 @@ import { Environment, ExecutionEnv, LogCollector } from "@/types/environment";
 import { TaskParamType } from "@/types/task";
 import { Edge } from "@xyflow/react";
 import { createLogCollector } from "../log";
-import { auth } from "@clerk/nextjs/server";
 
-async function ExecuteWorkflow(id: string) {
-  const { userId } = auth();
-  if (!userId) {
-    throw new Error("Unauthorized");
-  }
+async function ExecuteWorkflow(id: string, nextRun?: Date) {
   const execution = await prisma.workflowExecution.findUnique({
     where: { id },
     include: { workflow: true, phases: true },
@@ -38,7 +33,11 @@ async function ExecuteWorkflow(id: string) {
   };
 
   // Initialize workflow execution
-  await initializeWorkflowExecution(execution.id, execution.workflowId);
+  await initializeWorkflowExecution(
+    execution.id,
+    execution.workflowId,
+    nextRun
+  );
   await initializePhaseStatuses(execution);
   // Initialize phases status
 
@@ -50,7 +49,7 @@ async function ExecuteWorkflow(id: string) {
       phase,
       env,
       edges,
-      userId
+      execution.userId
     );
     creditsConsumed = phaseExecution.creditsConsumed;
     if (phaseExecution.status === false) {
@@ -271,7 +270,8 @@ async function initializePhaseStatuses(execution: any) {
 
 async function initializeWorkflowExecution(
   executionId: string,
-  workflowId: string
+  workflowId: string,
+  nextRunAt?: Date
 ) {
   await prisma.workflowExecution.update({
     where: {
@@ -291,6 +291,7 @@ async function initializeWorkflowExecution(
       lastRunAt: new Date(),
       lastRunId: executionId,
       lastRunStatus: ExecutionWorkflowStatus.RUNNING,
+      ...(nextRunAt && { nextRunAt }),
     },
   });
 }
