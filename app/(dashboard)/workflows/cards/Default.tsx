@@ -96,16 +96,20 @@ const Default = ({ workflow }: DefaultProps) => {
 function ScheduleSection({
   workflowId,
   creditsCost,
-  cron
+  cron,
 }: {
   workflowId: string;
   creditsCost: number;
-  cron: string | null
+  cron: string | null;
 }) {
   return (
     <div className="flex items-center gap-2">
       <CornerDownRight className="w-4 h-4 text-muted-foreground" />
-      <SchedulerDialog cronValue={cron} workflowId={workflowId} />
+      <SchedulerDialog
+        key={`${cron}-${workflowId}`}
+        cronValue={cron}
+        workflowId={workflowId}
+      />
       <MoveRightIcon className="h-4 w-4 text-muted-foreground" />
       <TooltipWrapper content="Credit consumption for full run">
         <div className="flex items-center gap-3">

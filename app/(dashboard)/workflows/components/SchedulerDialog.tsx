@@ -18,6 +18,8 @@ import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import cronstrue from "cronstrue";
 import cronparser from "cron-parser";
+import removeWorkflowScheduler from "@/actions/workflows/removeWorkflowScheduler";
+import { Separator } from "@/components/ui/separator";
 
 function SchedulerDialog({
   workflowId,
@@ -29,13 +31,22 @@ function SchedulerDialog({
   const [cron, setCron] = useState(cronValue || "");
   const [isValid, setValid] = useState(false);
   const [readCron, setReadCron] = useState("");
-  const { isPending, mutate } = useMutation({
+  const updateCron = useMutation({
     mutationFn: () => updateWorkflowCron({ cron, id: workflowId }),
     onSuccess: () => {
       toast.success("Schedule updated", { id: "cron" });
     },
     onError: () => {
-      toast.error("Schedule went wrong", { id: "cron" });
+      toast.error("Something went wrong", { id: "cron" });
+    },
+  });
+  const removeCron = useMutation({
+    mutationFn: () => removeWorkflowScheduler({ workflowId }),
+    onSuccess: () => {
+      toast.success("Schedule removed", { id: "cron" });
+    },
+    onError: () => {
+      toast.error("Something went wrong", { id: "cron" });
     },
   });
 
@@ -98,11 +109,29 @@ function SchedulerDialog({
           >
             {isValid ? readCron : "Cron is not valid"}
           </div>
+          {cronValue && (
+            <DialogClose asChild>
+              <div>
+                <Button
+                  className="w-full text-destructive border-destructive hover:text-destructive"
+                  variant={"outline"}
+                  onClick={() => {
+                    toast.loading("Removing", { id: "cron" });
+                    removeCron.mutate();
+                  }}
+                  disabled={updateCron.isPending || removeCron.isPending}
+                >
+                  Remove schedule
+                </Button>
+                <Separator className="my-4" />
+              </div>
+            </DialogClose>
+          )}
         </div>
         <DialogFooter className="px-6 gap-2">
           <DialogClose asChild>
             <Button
-              disabled={isPending}
+              disabled={updateCron.isPending}
               className="w-full"
               variant={"secondary"}
             >
@@ -111,11 +140,11 @@ function SchedulerDialog({
           </DialogClose>
           <DialogClose asChild>
             <Button
-              disabled={isPending || !isValid}
+              disabled={updateCron.isPending || !isValid}
               className="w-full"
               onClick={() => {
                 toast.loading("Saving", { id: "cron" });
-                mutate();
+                updateCron.mutate();
               }}
             >
               Save
