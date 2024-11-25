@@ -52,7 +52,7 @@ async function DeliverViaWebHook(
       return false;
     }
     const result = await response.json();
-    env.log.INFO(result);
+    env.log.INFO(JSON.stringify(result));
     return true;
   } catch (error: any) {
     env.log.ERROR(error.message);
