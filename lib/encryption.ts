@@ -1,6 +1,6 @@
 import crypto from "crypto";
 
-const ALG = "aes_256-cbc"; // key length is 32 bytes
+const ALG = "aes-256-cbc"; // key length is 32 bytes
 
 export const symmetricEncrypt = (data: string) => {
   const key = process.env.ENCRYPTION_KEY;
