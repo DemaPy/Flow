@@ -41,22 +41,27 @@ async function UserCredentials() {
   if (!credentials) {
     return <div>Something went wrong</div>;
   }
-  return (
-    <Card className="w-full p-4">
-      <div className="flex flex-col gap-4 items-center justify-center">
-        <div className="rounded-full bg-accent w-20 h-20 flex items-center justify-center">
-          <ShieldOffIcon size={40} className="stroke-primary" />
+
+  if (credentials.length === 0) {
+    return (
+      <Card className="w-full p-4">
+        <div className="flex flex-col gap-4 items-center justify-center">
+          <div className="rounded-full bg-accent w-20 h-20 flex items-center justify-center">
+            <ShieldOffIcon size={40} className="stroke-primary" />
+          </div>
+          <div className="flex flex-col gap-1 text-center">
+            <p className="text-bold">No credentials created yet</p>
+            <p className="text-sm text-muted-foreground">
+              Click the button to create first credential
+            </p>
+          </div>
+          <CreateCredentialDialog triggerText="Create your first credential" />
         </div>
-        <div className="flex flex-col gap-1 text-center">
-          <p className="text-bold">No credentials created yet</p>
-          <p className="text-sm text-muted-foreground">
-            Click the button to create first credential
-          </p>
-        </div>
-        <CreateCredentialDialog triggerText="Create your first credential" />
-      </div>
-    </Card>
-  );
+      </Card>
+    );
+  }
+
+  return <pre>{JSON.stringify(credentials, null, 4)}</pre>;
 }
 
 export default Credentials;

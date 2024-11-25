@@ -50,6 +50,7 @@ const CreateCredentialDialog = ({
     (value: credentialShemaType) => {
       toast.loading("Creating credential...", { id: "create-credential" });
       mutate(value);
+      setIsOpen(!isOpen);
     },
     [mutate]
   );

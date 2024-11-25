@@ -17,13 +17,14 @@ export async function createCredential(form: credentialShemaType) {
     throw new Error("Invalid form data");
   }
 
-  const encryptedValue = symmetricEncrypt(data.value)
+  const encryptedValue = symmetricEncrypt(data.value);
 
   try {
     const result = await prisma.credential.create({
       data: {
         userId,
-        ...data,
+        name: data.name,
+        value: encryptedValue,
       },
     });
     if (!result) {
