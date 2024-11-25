@@ -9,6 +9,7 @@ import * as cheerio from "cheerio";
 import { FillInputTask } from "../task/FillInput";
 import { ClickElementTask } from "../task/ClickElement";
 import { WaitForElementTask } from "../task/WaitForElement";
+import { DeliverViaWebHookTask } from "../task/DeliverViaWebHook";
 
 type ExecutorRegistryType = {
   [K in TaskType]: (
@@ -17,6 +18,7 @@ type ExecutorRegistryType = {
 };
 
 export const ExecutorRegistry: ExecutorRegistryType = {
+  DELIVER_VIA_WEBHOOK: DeliverViaWebHook,
   LAUNCH_BROWSER: LaunchBrowserExecution,
   PAGE_TO_HTML: PageToHtmlExecution,
   EXTRACT_TEXT_FROM_ELEMENT: ExtractTextFromElementExecution,
@@ -24,6 +26,39 @@ export const ExecutorRegistry: ExecutorRegistryType = {
   CLICK_ELEMENT: ClickElement,
   WAIT_FOR_ELEMENT: WaitForElement,
 };
+
+async function DeliverViaWebHook(
+  env: ExecutionEnv<typeof DeliverViaWebHookTask>
+): Promise<boolean> {
+  try {
+    const url = env.getInput("Target url");
+    if (!url) {
+      env.log.ERROR("Url not defined");
+    }
+
+    const body = env.getInput("Body");
+    if (!body) {
+      env.log.ERROR("Body not defined");
+    }
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      env.log.ERROR("Status code: " + response.status);
+      return false;
+    }
+    const result = await response.json();
+    env.log.INFO(result);
+    return true;
+  } catch (error: any) {
+    env.log.ERROR(error.message);
+    return false;
+  }
+}
 
 async function WaitForElement(
   env: ExecutionEnv<typeof WaitForElementTask>
