@@ -89,7 +89,7 @@ const CreateCredentialDialog = ({
                       <Input {...field} />
                     </FormControl>
                     <FormDescription className="text-muted-foreground text-xs">
-                      Choose unique name
+                      Choose unique name for your credential
                     </FormDescription>
                   </FormItem>
                 )}
@@ -101,12 +101,13 @@ const CreateCredentialDialog = ({
                   <FormItem>
                     <FormLabel className="flex gap-1 items-center">
                       Description
+                      <p className="text-xs text-primary">(required)</p>
                     </FormLabel>
                     <FormControl>
                       <Textarea className="resize-none" {...field} />
                     </FormControl>
                     <FormDescription className="text-muted-foreground text-xs">
-                      Provide a brief description of what workflow does.
+                      Enter value associated with this credential
                     </FormDescription>
                   </FormItem>
                 )}

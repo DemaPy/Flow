@@ -1,14 +1,10 @@
 "use server";
 
+import { symmetricEncrypt } from "@/lib/encryption";
 import prisma from "@/lib/prisma";
-import { CreateFlowNode } from "@/lib/workflow/createFlowNode";
 import { credentialShema, credentialShemaType } from "@/schema/credentials";
-import { AppNode } from "@/types/appNode";
-import { TaskType } from "@/types/task";
-import { WorkflowStatus } from "@/types/workflow";
 import { auth } from "@clerk/nextjs/server";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { Edge } from "@xyflow/react";
 import { redirect } from "next/navigation";
 
 export async function createCredential(form: credentialShemaType) {
@@ -21,34 +17,26 @@ export async function createCredential(form: credentialShemaType) {
     throw new Error("Invalid form data");
   }
 
-  const initialFlow: { nodes: AppNode[]; edges: Edge[] } = {
-    nodes: [],
-    edges: [],
-  };
+  const encryptedValue = symmetricEncrypt(data.value)
 
-  initialFlow.nodes.push(CreateFlowNode({ nodeType: TaskType.LAUNCH_BROWSER }));
-
-  let result;
   try {
-    result = await prisma.workflow.create({
+    const result = await prisma.credential.create({
       data: {
         userId,
-        status: WorkflowStatus.DRAFT,
-        definition: JSON.stringify(initialFlow),
         ...data,
       },
     });
     if (!result) {
-      throw new Error("Failed to create workflow");
+      throw new Error("Failed to create credential");
     }
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === "P2002") {
-        throw new Error("Workflow name already exist");
+        throw new Error("Credential name already exist");
       }
     }
     throw new Error("Something went wrong");
   }
 
-  redirect(`/workflow/editor/${result.id}`);
+  redirect(`/credentials`);
 }
