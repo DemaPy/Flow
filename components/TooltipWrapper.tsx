@@ -12,6 +12,7 @@ interface TooltipWrapperProps extends PropsWithChildren {
 }
 
 const TooltipWrapper = ({ children, side, content }: TooltipWrapperProps) => {
+  if (!content) return children;
   return (
     <TooltipProvider delayDuration={0}>
       <Tooltip>
