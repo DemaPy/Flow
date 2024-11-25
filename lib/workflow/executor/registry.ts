@@ -33,7 +33,17 @@ async function WaitForElement(
     if (!selector) {
       env.log.ERROR("input->selector not defined");
     }
-    await env.getPage()!.click(selector);
+
+    const visibility = env.getInput("Visibility");
+    if (!visibility) {
+      env.log.ERROR("input->visibility not defined");
+    }
+    await env.getPage()!.waitForSelector(selector, {
+      visible: visibility === "visible",
+      hidden: visibility === "hidden",
+    });
+
+    env.log.INFO(`Element ${selector} became: ${visibility}`);
     return true;
   } catch (error: any) {
     env.log.ERROR(error.message);
