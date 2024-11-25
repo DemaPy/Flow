@@ -12,7 +12,11 @@ import TaskMenuBtn from "./TaskMenuBtn";
 const TaskMenu = () => {
   return (
     <aside className="w-[340px] mix-w-[340px] border-r-2 border-separate h-full p-2 px-4 overflow-auto">
-      <Accordion type="multiple" className="w-full" defaultValue={["extraction"]}>
+      <Accordion
+        type="multiple"
+        className="w-full"
+        defaultValue={["extraction", "interactions", "timing"]}
+      >
         <AccordionItem value="extraction">
           <AccordionTrigger className="font-bold">
             Data extraction
@@ -20,6 +24,24 @@ const TaskMenu = () => {
           <AccordionContent className="flex flex-col gap-1">
             <TaskMenuBtn taskType={TaskType.PAGE_TO_HTML} />
             <TaskMenuBtn taskType={TaskType.EXTRACT_TEXT_FROM_ELEMENT} />
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="interactions">
+          <AccordionTrigger className="font-bold">
+            Data extraction
+          </AccordionTrigger>
+          <AccordionContent className="flex flex-col gap-1">
+            <TaskMenuBtn taskType={TaskType.FILL_INPUT} />
+            <TaskMenuBtn taskType={TaskType.CLICK_ELEMENT} />
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="timing">
+          <AccordionTrigger className="font-bold">
+            Timing controls
+          </AccordionTrigger>
+          <AccordionContent className="flex flex-col gap-1">
+            <TaskMenuBtn taskType={TaskType.WAIT_FOR_ELEMENT} />
+            {/* DELAY TODO */}
           </AccordionContent>
         </AccordionItem>
       </Accordion>

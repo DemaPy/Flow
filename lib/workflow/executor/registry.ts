@@ -6,6 +6,9 @@ import { LaunchBrowser } from "../task/LaunchBrowser";
 import { PageToHtml } from "../task/PageToHtml";
 import { ExtractTextFromElement } from "../task/ExtractTextFromElement";
 import * as cheerio from "cheerio";
+import { FillInputTask } from "../task/FillInput";
+import { ClickElementTask } from "../task/ClickElement";
+import { WaitForElementTask } from "../task/WaitForElement";
 
 type ExecutorRegistryType = {
   [K in TaskType]: (
@@ -17,7 +20,62 @@ export const ExecutorRegistry: ExecutorRegistryType = {
   LAUNCH_BROWSER: LaunchBrowserExecution,
   PAGE_TO_HTML: PageToHtmlExecution,
   EXTRACT_TEXT_FROM_ELEMENT: ExtractTextFromElementExecution,
+  FILL_INPUT: FillInput,
+  CLICK_ELEMENT: ClickElement,
+  WAIT_FOR_ELEMENT: WaitForElement,
 };
+
+async function WaitForElement(
+  env: ExecutionEnv<typeof WaitForElementTask>
+): Promise<boolean> {
+  try {
+    const selector = env.getInput("Selector");
+    if (!selector) {
+      env.log.ERROR("input->selector not defined");
+    }
+    await env.getPage()!.click(selector);
+    return true;
+  } catch (error: any) {
+    env.log.ERROR(error.message);
+    return false;
+  }
+}
+
+async function ClickElement(
+  env: ExecutionEnv<typeof ClickElementTask>
+): Promise<boolean> {
+  try {
+    const selector = env.getInput("Selector");
+    if (!selector) {
+      env.log.ERROR("input->selector not defined");
+    }
+    await env.getPage()!.click(selector);
+    return true;
+  } catch (error: any) {
+    env.log.ERROR(error.message);
+    return false;
+  }
+}
+
+async function FillInput(
+  env: ExecutionEnv<typeof FillInputTask>
+): Promise<boolean> {
+  try {
+    const selector = env.getInput("Selector");
+    if (!selector) {
+      env.log.ERROR("input->selector not defined");
+    }
+    const value = env.getInput("Value");
+    if (!value) {
+      env.log.ERROR("input->value not defined");
+    }
+    await env.getPage()!.type(selector, value);
+    return true;
+  } catch (error: any) {
+    env.log.ERROR(error.message);
+    return false;
+  }
+}
 
 async function LaunchBrowserExecution(
   env: ExecutionEnv<typeof LaunchBrowser>
