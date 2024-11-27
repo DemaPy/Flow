@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import {
   ExecutionPhaseStatus,
   ExecutionWorkflowStatus,
-  WorkflowTask,
 } from "@/types/workflow";
 import { ExecutionPhase } from "@prisma/client";
 import { AppNode } from "@/types/appNode";

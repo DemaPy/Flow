@@ -10,6 +10,7 @@ import { FillInputTask } from "../task/FillInput";
 import { ClickElementTask } from "../task/ClickElement";
 import { WaitForElementTask } from "../task/WaitForElement";
 import { DeliverViaWebHookTask } from "../task/DeliverViaWebHook";
+import { AddPropertyToJsonTask } from "../task/AddPropertyToJson";
 
 type ExecutorRegistryType = {
   [K in TaskType]: (
@@ -25,7 +26,35 @@ export const ExecutorRegistry: ExecutorRegistryType = {
   FILL_INPUT: FillInput,
   CLICK_ELEMENT: ClickElement,
   WAIT_FOR_ELEMENT: WaitForElement,
+  ADD_PROPERTY_TO_JSON: AddPropertyToJson,
 };
+
+async function AddPropertyToJson(
+  env: ExecutionEnv<typeof AddPropertyToJsonTask>
+): Promise<boolean> {
+  try {
+    const json = env.getInput("JSON");
+    if (!json) {
+      env.log.ERROR("input->JSON not defined");
+    }
+    const propertyName = env.getInput("Property name");
+    if (!propertyName) {
+      env.log.ERROR("input->propertyName not defined");
+    }
+    const propertyValue = env.getInput("Property value");
+    if (!propertyValue) {
+      env.log.ERROR("input->propertyValue not defined");
+    }
+
+    const parsedJSON = JSON.parse(json);
+    parsedJSON[propertyName] = propertyValue;
+    env.setOutput("Update JSON", JSON.stringify(parsedJSON));
+    return true;
+  } catch (error: any) {
+    env.log.ERROR(error.message);
+    return false;
+  }
+}
 
 async function DeliverViaWebHook(
   env: ExecutionEnv<typeof DeliverViaWebHookTask>
