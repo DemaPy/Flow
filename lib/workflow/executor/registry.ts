@@ -11,6 +11,7 @@ import { ClickElementTask } from "../task/ClickElement";
 import { WaitForElementTask } from "../task/WaitForElement";
 import { DeliverViaWebHookTask } from "../task/DeliverViaWebHook";
 import { AddPropertyToJsonTask } from "../task/AddPropertyToJson";
+import { NavigateUrlTask } from "../task/NavigateUrlTask";
 
 type ExecutorRegistryType = {
   [K in TaskType]: (
@@ -27,7 +28,23 @@ export const ExecutorRegistry: ExecutorRegistryType = {
   CLICK_ELEMENT: ClickElement,
   WAIT_FOR_ELEMENT: WaitForElement,
   ADD_PROPERTY_TO_JSON: AddPropertyToJson,
+  NAVIGATE_URL: NavigateUrl,
 };
+
+async function NavigateUrl(env: ExecutionEnv<typeof NavigateUrlTask>) {
+  try {
+    const url = env.getInput("Url");
+    if (!url) {
+      env.log.ERROR("input->URL not defined");
+    }
+    await env.getPage()!.goto(url);
+    env.log.INFO(`Url ${url} has been visited.`)
+    return true;
+  } catch (error: any) {
+    env.log.ERROR(error.message);
+    return false;
+  }
+}
 
 async function AddPropertyToJson(
   env: ExecutionEnv<typeof AddPropertyToJsonTask>
@@ -123,7 +140,8 @@ async function ClickElement(
     if (!selector) {
       env.log.ERROR("input->selector not defined");
     }
-    await env.getPage()!.click(selector);
+    // await env.getPage()!.click(selector);
+    await env.getPage()!.$eval(selector, (elem) => (elem as HTMLElement).click());
     return true;
   } catch (error: any) {
     env.log.ERROR(error.message);
@@ -156,7 +174,7 @@ async function LaunchBrowserExecution(
 ): Promise<boolean> {
   try {
     const url = env.getInput("Website Url");
-    const browser = await puppetter.launch({ headless: true });
+    const browser = await puppetter.launch({ headless: false });
     env.log.INFO("Browser started successfully");
     env.setBrowser(browser);
     const page = await browser.newPage();
@@ -186,6 +204,7 @@ async function ExtractTextFromElementExecution(
 ) {
   try {
     const selector = env.getInput("Selector");
+
     if (!selector) {
       env.log.ERROR("Selector not found.");
       return false;
