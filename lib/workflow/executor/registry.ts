@@ -12,6 +12,7 @@ import { WaitForElementTask } from "../task/WaitForElement";
 import { DeliverViaWebHookTask } from "../task/DeliverViaWebHook";
 import { AddPropertyToJsonTask } from "../task/AddPropertyToJson";
 import { NavigateUrlTask } from "../task/NavigateUrlTask";
+import { ScrollToElementTask } from "../task/ScrollToElement";
 
 type ExecutorRegistryType = {
   [K in TaskType]: (
@@ -20,6 +21,7 @@ type ExecutorRegistryType = {
 };
 
 export const ExecutorRegistry: ExecutorRegistryType = {
+  SCROLL_TO_ELEMENT: ScrollToElement,
   DELIVER_VIA_WEBHOOK: DeliverViaWebHook,
   LAUNCH_BROWSER: LaunchBrowserExecution,
   PAGE_TO_HTML: PageToHtmlExecution,
@@ -31,6 +33,27 @@ export const ExecutorRegistry: ExecutorRegistryType = {
   NAVIGATE_URL: NavigateUrl,
 };
 
+async function ScrollToElement(env: ExecutionEnv<typeof ScrollToElementTask>) {
+  try {
+    const selector = env.getInput("Selector");
+    if (!selector) {
+      env.log.ERROR("input->selector not defined");
+    }
+    await env.getPage()!.evaluate((selector) => {
+      const element = document.querySelector(selector);
+      if (!element) {
+        throw new Error("Element not found");
+      }
+      const y = element.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: y });
+    }, selector);
+    return true;
+  } catch (error: any) {
+    env.log.ERROR(error.message);
+    return false;
+  }
+}
+
 async function NavigateUrl(env: ExecutionEnv<typeof NavigateUrlTask>) {
   try {
     const url = env.getInput("Url");
@@ -38,7 +61,7 @@ async function NavigateUrl(env: ExecutionEnv<typeof NavigateUrlTask>) {
       env.log.ERROR("input->URL not defined");
     }
     await env.getPage()!.goto(url);
-    env.log.INFO(`Url ${url} has been visited.`)
+    env.log.INFO(`Url ${url} has been visited.`);
     return true;
   } catch (error: any) {
     env.log.ERROR(error.message);
@@ -141,7 +164,9 @@ async function ClickElement(
       env.log.ERROR("input->selector not defined");
     }
     // await env.getPage()!.click(selector);
-    await env.getPage()!.$eval(selector, (elem) => (elem as HTMLElement).click());
+    await env
+      .getPage()!
+      .$eval(selector, (elem) => (elem as HTMLElement).click());
     return true;
   } catch (error: any) {
     env.log.ERROR(error.message);
@@ -174,7 +199,7 @@ async function LaunchBrowserExecution(
 ): Promise<boolean> {
   try {
     const url = env.getInput("Website Url");
-    const browser = await puppetter.launch({ headless: false });
+    const browser = await puppetter.launch({ headless: true });
     env.log.INFO("Browser started successfully");
     env.setBrowser(browser);
     const page = await browser.newPage();
