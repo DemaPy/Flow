@@ -1,6 +1,8 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TaskRegistry } from "@/lib/workflow/task/registry";
 import { TaskType } from "@/types/task";
+import { CoinsIcon } from "lucide-react";
 import React from "react";
 
 interface TaskMenuBtnProps {
@@ -22,10 +24,14 @@ const TaskMenuBtn = ({ taskType }: TaskMenuBtnProps) => {
       variant={"secondary"}
       className="flex justify-between items-center gap-2 border w-full"
     >
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
         <Task.icon size={20} />
         {Task.label}
       </div>
+      <Badge variant={"outline"} className="flex gap-2 items-center">
+        <CoinsIcon size={16} />
+        {Task.credits}
+      </Badge>
     </Button>
   );
 };

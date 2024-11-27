@@ -11,7 +11,7 @@ import TaskMenuBtn from "./TaskMenuBtn";
 
 const TaskMenu = () => {
   return (
-    <aside className="w-[340px] mix-w-[340px] border-r-2 border-separate h-full p-2 px-4 overflow-auto">
+    <aside className="w-[380px] mix-w-[380px] border-r-2 border-separate h-full p-2 px-4 overflow-auto">
       <Accordion
         type="multiple"
         className="w-full"
