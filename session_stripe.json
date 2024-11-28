@@ -1,0 +1,100 @@
+{
+  "id": "cs_test_a1Ke9NCpGnzH5wHfk3q6kuViWir5nVouDqFkStrUbVPVEh0WPNKgzRvooP",
+  "object": "checkout.session",
+  "adaptive_pricing": { "enabled": false },
+  "after_expiration": null,
+  "allow_promotion_codes": null,
+  "amount_subtotal": 3999,
+  "amount_total": 3999,
+  "automatic_tax": { "enabled": false, "liability": null, "status": null },
+  "billing_address_collection": null,
+  "cancel_url": "http://localhost:3000/billing",
+  "client_reference_id": null,
+  "client_secret": null,
+  "consent": null,
+  "consent_collection": null,
+  "created": 1732819702,
+  "currency": "usd",
+  "currency_conversion": null,
+  "custom_fields": [],
+  "custom_text": {
+    "after_submit": null,
+    "shipping_address": null,
+    "submit": null,
+    "terms_of_service_acceptance": null
+  },
+  "customer": "cus_RIoOKdrEefjIY8",
+  "customer_creation": "if_required",
+  "customer_details": {
+    "address": {
+      "city": null,
+      "country": "PL",
+      "line1": null,
+      "line2": null,
+      "postal_code": null,
+      "state": null
+    },
+    "email": "benderdema@gmail.com",
+    "name": "Dema",
+    "phone": null,
+    "tax_exempt": "none",
+    "tax_ids": []
+  },
+  "customer_email": null,
+  "expires_at": 1732906101,
+  "invoice": "in_1QQClYIk34OI7emUZDkWCZnj",
+  "invoice_creation": {
+    "enabled": true,
+    "invoice_data": {
+      "account_tax_ids": null,
+      "custom_fields": null,
+      "description": null,
+      "footer": null,
+      "issuer": { "type": "self" },
+      "metadata": {},
+      "rendering_options": null
+    }
+  },
+  "livemode": false,
+  "locale": null,
+  "metadata": {
+    "userId": "user_2okNbEVUv7uhG2fPFSo1UhENGtG",
+    "packId": "MEDIUM"
+  },
+  "mode": "payment",
+  "payment_intent": "pi_3QQClXIk34OI7emU2LYJuxUY",
+  "payment_link": null,
+  "payment_method_collection": "if_required",
+  "payment_method_configuration_details": {
+    "id": "pmc_1QQCSMIk34OI7emUxu7Fdv6A",
+    "parent": null
+  },
+  "payment_method_options": {
+    "card": { "request_three_d_secure": "automatic" }
+  },
+  "payment_method_types": ["card", "link"],
+  "payment_status": "paid",
+  "phone_number_collection": { "enabled": false },
+  "recovered_from": null,
+  "saved_payment_method_options": {
+    "allow_redisplay_filters": ["always"],
+    "payment_method_remove": null,
+    "payment_method_save": null
+  },
+  "setup_intent": null,
+  "shipping_address_collection": null,
+  "shipping_cost": null,
+  "shipping_details": null,
+  "shipping_options": [],
+  "status": "complete",
+  "submit_type": null,
+  "subscription": null,
+  "success_url": "http://localhost:3000/billing",
+  "total_details": {
+    "amount_discount": 0,
+    "amount_shipping": 0,
+    "amount_tax": 0
+  },
+  "ui_mode": "hosted",
+  "url": null
+}
