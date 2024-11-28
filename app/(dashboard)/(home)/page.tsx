@@ -4,6 +4,7 @@ import React, { Suspense } from "react";
 import PeriodSelector from "./_components/PeriodSelector";
 import { Period } from "@/types/analytics";
 import StatsCards from "./_components/StatsCards";
+import getWorkflowExecutionsStats from "@/actions/analytics/getWorkflowExecutionsStats";
 
 const HomePage = ({
   searchParams,
@@ -22,7 +23,7 @@ const HomePage = ({
   };
 
   return (
-    <div className="flex flex-1 flex-col h-full">
+    <div className="flex flex-1 flex-col h-full gap-4">
       <div className="flex justify-between">
         <h1 className="text-3xl font-bold">Home</h1>
         <Suspense fallback={<Skeleton />}>
@@ -30,9 +31,20 @@ const HomePage = ({
         </Suspense>
       </div>
       <StatsCards selectedPeriod={period} />
+      <StatsExecutionStatus selectedPeriod={period} />
     </div>
   );
 };
+
+async function StatsExecutionStatus({
+  selectedPeriod,
+}: {
+  selectedPeriod: Period;
+}) {
+  const data = await getWorkflowExecutionsStats(selectedPeriod);
+
+  return <pre>{JSON.stringify(data, null, 4)}</pre>;
+}
 
 async function PeriodSelectorWrapper({
   selectedPeriod,
