@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ArrowLeftRightIcon } from "lucide-react";
+import InvoiceButton from "./InvoiceButton";
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("en-US", {
@@ -43,17 +44,21 @@ async function TransactionHistory() {
           <p className="text-muted-foreground">No transactions yet</p>
         )}
         {data.map((item) => (
-          <div key={item.id} className="flex justify-between items-center py-3 border-b last:border-b-0">
+          <div
+            key={item.id}
+            className="flex justify-between items-center py-3 border-b last:border-b-0"
+          >
             <div>
               <p className="font-medium">{formatDate(item.date)}</p>
               <p className="text-sm text-muted-foreground">
                 {item.description}
               </p>
             </div>
-            <div className="text-right">
+            <div className="text-right flex flex-col">
               <p className="font-medium">
                 {formatAmount(item.amount, item.currency)}
               </p>
+                <InvoiceButton id={item.id} />
             </div>
           </div>
         ))}

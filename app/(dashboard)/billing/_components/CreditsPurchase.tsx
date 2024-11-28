@@ -16,19 +16,12 @@ import { CreditsPack, PackId } from "@/types/billing";
 import { useMutation } from "@tanstack/react-query";
 import { CoinsIcon, CreditCard } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 
 function CreditsPurchase() {
   const [selectedPack, setSelectedPack] = useState(PackId.MEDIUM);
 
   const mutation = useMutation({
     mutationFn: purchaseCredits,
-    onSuccess: () => {
-      toast.success("", { id: "purchase" });
-    },
-    onError: () => {
-      toast.error("", { id: "purchase" });
-    },
   });
 
   return (
