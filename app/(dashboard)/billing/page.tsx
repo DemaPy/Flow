@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import BalanceCard from "./_components/BalanceCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import CreditsPurchase from "./_components/CreditsPurchase";
 
 const Billing = () => {
   return (
@@ -9,6 +10,7 @@ const Billing = () => {
       <Suspense fallback={<Skeleton className="h-[160px] w-full" />}>
         <BalanceCard />
       </Suspense>
+      <CreditsPurchase />
     </div>
   );
 };
