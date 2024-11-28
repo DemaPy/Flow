@@ -40,4 +40,14 @@ export async function HandleCheckoutSessionCompleted(
       },
     },
   });
+
+  await prisma.userPurchase.create({
+    data: {
+      userId,
+      stripeId: event.id,
+      description: `${purchasePack.name} - ${purchasePack.credits} credits`,
+      amount: event.amount_total!,
+      currency: event.currency!,
+    },
+  });
 }
