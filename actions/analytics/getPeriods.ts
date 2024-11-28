@@ -1,3 +1,5 @@
+"use server"
+
 import prisma from "@/lib/prisma";
 import { Period } from "@/types/analytics";
 import { auth } from "@clerk/nextjs/server";

@@ -5,6 +5,9 @@ import PeriodSelector from "./_components/PeriodSelector";
 import { Period } from "@/types/analytics";
 import StatsCards from "./_components/StatsCards";
 import getWorkflowExecutionsStats from "@/actions/analytics/getWorkflowExecutionsStats";
+import ExecutionStatusChart from "./_components/ExecutionStatusChart";
+import getCreditsUsageInPeriod from "@/actions/analytics/getCreditsUsageInPeriod";
+import CreditsUsageChart from "./_components/CreditsUsageChart";
 
 const HomePage = ({
   searchParams,
@@ -32,9 +35,26 @@ const HomePage = ({
       </div>
       <StatsCards selectedPeriod={period} />
       <StatsExecutionStatus selectedPeriod={period} />
+      <CreditsExecutionStats selectedPeriod={period} />
     </div>
   );
 };
+
+async function CreditsExecutionStats({
+  selectedPeriod,
+}: {
+  selectedPeriod: Period;
+}) {
+  const data = await getCreditsUsageInPeriod(selectedPeriod);
+
+  return (
+    <CreditsUsageChart
+      title="Daily credits spent"
+      description="Daily credits consumed in selected period"
+      data={data}
+    />
+  );
+}
 
 async function StatsExecutionStatus({
   selectedPeriod,
@@ -43,7 +63,7 @@ async function StatsExecutionStatus({
 }) {
   const data = await getWorkflowExecutionsStats(selectedPeriod);
 
-  return <pre>{JSON.stringify(data, null, 4)}</pre>;
+  return <ExecutionStatusChart data={data} />;
 }
 
 async function PeriodSelectorWrapper({

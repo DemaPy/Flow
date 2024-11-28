@@ -3,11 +3,11 @@
 import prisma from "@/lib/prisma";
 import PeriodToDateRange from "@/lib/workflow/PeriodToDateRange";
 import { Period } from "@/types/analytics";
-import { ExecutionWorkflowStatus } from "@/types/workflow";
+import { ExecutionPhaseStatus } from "@/types/workflow";
 import { auth } from "@clerk/nextjs/server";
 import { eachDayOfInterval, format } from "date-fns";
 
-async function getWorkflowExecutionsStats(period: Period) {
+async function getCreditsUsageInPeriod(period: Period) {
   const { userId } = auth();
   if (!userId) {
     throw new Error("Unauthenticated");
@@ -15,12 +15,15 @@ async function getWorkflowExecutionsStats(period: Period) {
 
   const dateRange = PeriodToDateRange(period);
 
-  const executions = await prisma.workflowExecution.findMany({
+  const executionsPhases = await prisma.executionPhase.findMany({
     where: {
       userId,
       startedAt: {
         gte: dateRange.startDate,
         lte: dateRange.endDate,
+      },
+      status: {
+        in: [ExecutionPhaseStatus.COMPLETED, ExecutionPhaseStatus.FAILED],
       },
     },
   });
@@ -49,13 +52,13 @@ async function getWorkflowExecutionsStats(period: Period) {
       >
     );
 
-  executions.forEach((execution) => {
-    const date = format(execution.startedAt!, formatDate);
-    if (execution.status === ExecutionWorkflowStatus.COMPLETED) {
-      stats[date].success += 1;
+  executionsPhases.forEach((phase) => {
+    const date = format(phase.startedAt!, formatDate);
+    if (phase.status === ExecutionPhaseStatus.COMPLETED) {
+      stats[date].success += phase.creditsConsumed || 0;
     }
-    if (execution.status === ExecutionWorkflowStatus.FAILED) {
-      stats[date].failed += 1;
+    if (phase.status === ExecutionPhaseStatus.FAILED) {
+      stats[date].failed += phase.creditsConsumed || 0;
     }
   });
 
@@ -63,10 +66,10 @@ async function getWorkflowExecutionsStats(period: Period) {
     return {
       date: key,
       ...value,
-    }
-  })
+    };
+  });
 
   return result;
 }
 
-export default getWorkflowExecutionsStats;
+export default getCreditsUsageInPeriod;
