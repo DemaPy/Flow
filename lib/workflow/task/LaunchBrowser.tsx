@@ -2,7 +2,7 @@ import { TaskParamType, TaskType } from "@/types/task";
 import { WorkflowTask } from "@/types/workflow";
 import { GlobeIcon, LucideProps } from "lucide-react";
 
-export const LaunchBrowser = {
+export const LaunchBrowserTask = {
   type: TaskType.LAUNCH_BROWSER,
   label: "Launch Browser",
   icon: (props: LucideProps) => (

@@ -2,7 +2,7 @@ import { TaskParamType, TaskType } from "@/types/task";
 import { WorkflowTask } from "@/types/workflow";
 import { GlobeIcon, LucideProps } from "lucide-react";
 
-export const PageToHtml = {
+export const PageToHtmlTask = {
   type: TaskType.PAGE_TO_HTML,
   label: "Get HTML from page",
   icon: (props: LucideProps) => (
