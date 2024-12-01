@@ -10,6 +10,10 @@ import {
 import { timingSafeEqual } from "crypto";
 import parser from "cron-parser";
 
+// THIS IS ROUTE WILL BE TRIGGERED BY ANOTHER API ROUTE.
+// const triggerApiUrl = getAppUrl(`api/workflows/execute?workflowId=${id}`);
+
+
 // WHEN GET REQUEST (BY CRON) =>
 // CREATE NEW EXECUTION FROM CURRENT EXECUTION PLAN
 // CALCULATE NEXT RUN WORKFLOW DATE

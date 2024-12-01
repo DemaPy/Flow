@@ -5,6 +5,8 @@ import { Workflow } from "@prisma/client";
 
 // GET WORKFLOWS THAT HAS LTE DATE
 
+// CRONS WILL BE EXECUTED ONCE URL WILL BE VISITED -> /workflows/crons
+
 export async function GET(req: Request) {
   const now = new Date();
   const workflows = await prisma.workflow.findMany({
