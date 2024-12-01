@@ -2,9 +2,9 @@ import { ExecutionEnv } from "@/types/environment";
 import { TaskType } from "@/types/task";
 import { WorkflowTask } from "@/types/workflow";
 import puppetter from "puppeteer";
-import { LaunchBrowser } from "../task/LaunchBrowser";
-import { PageToHtml } from "../task/PageToHtml";
-import { ExtractTextFromElement } from "../task/ExtractTextFromElement";
+import { LaunchBrowserTask } from "../task/LaunchBrowser";
+import { PageToHtmlTask } from "../task/PageToHtml";
+import { ExtractTextFromElementTask } from "../task/ExtractTextFromElement";
 import * as cheerio from "cheerio";
 import { FillInputTask } from "../task/FillInput";
 import { ClickElementTask } from "../task/ClickElement";
@@ -195,7 +195,7 @@ async function FillInput(
 }
 
 async function LaunchBrowserExecution(
-  env: ExecutionEnv<typeof LaunchBrowser>
+  env: ExecutionEnv<typeof LaunchBrowserTask>
 ): Promise<boolean> {
   try {
     const url = env.getInput("Website Url");
@@ -213,7 +213,7 @@ async function LaunchBrowserExecution(
   }
 }
 
-async function PageToHtmlExecution(env: ExecutionEnv<typeof PageToHtml>) {
+async function PageToHtmlExecution(env: ExecutionEnv<typeof PageToHtmlTask>) {
   try {
     const html = await env.getPage()!.content();
     env.setOutput("Html", html);
@@ -225,7 +225,7 @@ async function PageToHtmlExecution(env: ExecutionEnv<typeof PageToHtml>) {
 }
 
 async function ExtractTextFromElementExecution(
-  env: ExecutionEnv<typeof ExtractTextFromElement>
+  env: ExecutionEnv<typeof ExtractTextFromElementTask>
 ) {
   try {
     const selector = env.getInput("Selector");

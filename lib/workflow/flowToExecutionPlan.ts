@@ -74,7 +74,7 @@ const flowToExecutionPlan = (
         if (incomers.every((inc) => planned.has(inc.id))) {
           // if all incomers are planned
           // (incomer it is parent node)
-          // and there are still incalid inputs
+          // and there are still invalid inputs
           // this particular node has an invalid input.
           invalidInputs.push({
             nodeId: currNode.id,

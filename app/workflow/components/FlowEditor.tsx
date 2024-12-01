@@ -60,7 +60,6 @@ function FlowEditor({ workflow }: FlowEditorProps) {
       console.log(error);
     }
   }, [workflow, setNodes, setEdges]);
-  console.log(nodes);
   
   const handleDragOver = useCallback((ev: React.DragEvent) => {
     ev.preventDefault();

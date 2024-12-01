@@ -93,6 +93,7 @@ async function executeWorkflowPhase(
 
   const startedAt = new Date();
   const node = JSON.parse(phase.node) as AppNode;
+  // Create in environment object [node_id] property with value object and keys inputs, outputs
   setupEnvForPhase(node, env, edges);
   // Update phase status
   await prisma.executionPhase.update({
@@ -169,7 +170,25 @@ function setupEnvForPhase(node: AppNode, env: Environment, edges: Edge[]) {
       continue;
     }
 
+    // For the first iteration we will pass this part, since 1 phase is Launnch browser node.
+    // Second time we will iterate over edges and find the edge where current node for this edge looks like target node.
+    // Then, we can access source node from this edge and extract outputs values from environment object that has been setted to it on the previous iteration
+    // inside Execution Function.
+
+    // INSIDE LOOP ITERATION
+
+    // 1. Find function executor.
+    // 2. Setup OBJECT environment execution for function (setup closure for: node id and env where new prope.)
+    // 3. Call function with this OBJECT environment.
+
+    // When function like setPage and setOutput has been called
+    // node.id should not be passsed.
+
+    // 4. LaunchBrowserExecution -> setPage to environment.
+    // 5. PageToHtmlExecution -> read page from environment -> setOutput("Html", html)
+
     // Get input value from outputs
+    // Find edge that is connected to current node like target.
     const connectedEdge = edges.find(
       (edge) => edge.target === node.id && edge.targetHandle === input.name
     );
@@ -179,6 +198,7 @@ function setupEnvForPhase(node: AppNode, env: Environment, edges: Edge[]) {
     }
 
     // Get output value from prev node
+    // Set for environment object property by input name outputValue from prevous node.
     const outputValue =
       env.phases[connectedEdge.source].outputs[connectedEdge.sourceHandle!];
 

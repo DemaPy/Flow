@@ -32,6 +32,9 @@ const PublishButton = ({ workflowId }: PublishButton) => {
       disabled={isPending}
       onClick={() => {
         const plan = generate();
+        console.log(plan);
+        return;
+        
         if (!plan) {
           return;
         }
