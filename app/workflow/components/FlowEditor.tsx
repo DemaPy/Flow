@@ -56,19 +56,12 @@ function FlowEditor({ workflow }: FlowEditorProps) {
       }
       setNodes(definition.nodes || []);
       setEdges(definition.edges || []);
-      // if ("viewport" in definition) {
-      //   const { x = 0, y = 0, zoom = 1 } = definition.viewport;
-      //   setViewport({
-      //     x,
-      //     y,
-      //     zoom,
-      //   });
-      // }
     } catch (error) {
       console.log(error);
     }
   }, [workflow, setNodes, setEdges]);
-
+  console.log(nodes);
+  
   const handleDragOver = useCallback((ev: React.DragEvent) => {
     ev.preventDefault();
     ev.dataTransfer.dropEffect = "move";
@@ -118,9 +111,6 @@ function FlowEditor({ workflow }: FlowEditorProps) {
   const isValidConnection = useCallback(
     (connection: Edge | Connection) => {
       if (connection.source === connection.target) return false;
-
-      if (connection.source === connection.target) {
-      }
 
       const source = nodes.find((node) => node.id === connection.source);
       const target = nodes.find((node) => node.id === connection.target);
