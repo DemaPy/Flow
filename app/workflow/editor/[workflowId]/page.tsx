@@ -17,8 +17,8 @@ async function page({ params }: { params: { workflowId: string } }) {
     },
   });
 
-  if (!workflow) {
-    return <div>Workflow not found</div>;
+  if (true) {
+    throw new Error("Workflow not found")
   }
 
   return <Editor workflow={workflow}/>
