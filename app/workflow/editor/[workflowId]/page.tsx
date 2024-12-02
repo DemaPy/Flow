@@ -17,7 +17,7 @@ async function page({ params }: { params: { workflowId: string } }) {
     },
   });
 
-  if (true) {
+  if (!workflow) {
     throw new Error("Workflow not found")
   }
 
