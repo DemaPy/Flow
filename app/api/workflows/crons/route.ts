@@ -9,7 +9,7 @@ import { Workflow } from "@prisma/client";
 
 export async function GET(req: Request) {
   const now = new Date();
-  const workflows = await prisma.workflow.findMany({
+  const workflowsId = await prisma.workflow.findMany({
     where: {
       status: WorkflowStatus.PUBLISHED,
       cron: { not: null },
@@ -22,11 +22,11 @@ export async function GET(req: Request) {
     },
   });
 
-  for (const workflow of workflows) {
-    triggerWorkflow(workflow);
+  for (const id of workflowsId) {
+    triggerWorkflow(id);
   }
 
-  return Response.json({ workflowsToRun: workflows }, { status: 200 });
+  return Response.json({ workflowsToRun: workflowsId }, { status: 200 });
 }
 
 function triggerWorkflow({ id }: { id: Workflow["id"] }) {

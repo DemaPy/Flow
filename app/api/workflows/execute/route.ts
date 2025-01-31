@@ -14,11 +14,11 @@ import parser from "cron-parser";
 // const triggerApiUrl = getAppUrl(`api/workflows/execute?workflowId=${id}`);
 
 
-// WHEN GET REQUEST (BY CRON) =>
-// CREATE NEW EXECUTION FROM CURRENT EXECUTION PLAN
-// CALCULATE NEXT RUN WORKFLOW DATE
-// BASED ON CRON TIME AND PASS TIME TO EXECUTE_WORKFLOW FUNCTION
-// IN ORDER TO UPDATE workflow for NEXT EXECUTION
+// ONCE GET REQUEST (BY CRON) =>
+// -CREATE NEW EXECUTION FROM CURRENT EXECUTION PLAN
+// -CALCULATE NEXT RUN WORKFLOW DATE BASED ON CRON TIME
+//  AND PASS TIME TO EXECUTE_WORKFLOW FUNCTION
+//  IN ORDER TO UPDATE workflow for NEXT EXECUTION
 
 export async function GET(req: Request) {
   const authHeader = req.headers.get("authorization");
@@ -33,7 +33,7 @@ export async function GET(req: Request) {
   }
 
   const { searchParams } = new URL(req.url);
-  const workflowId = searchParams.get("workflowId") as string;
+  const workflowId = searchParams.get("workflowId");
   if (!workflowId) {
     return Response.json({ error: "Workflow id not found" }, { status: 400 });
   }
